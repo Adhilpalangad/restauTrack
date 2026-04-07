@@ -1,5 +1,6 @@
 import { UtensilsCrossed } from 'lucide-react';
 import OfflineIndicator from './OfflineIndicator';
+import InstallPWA from '../common/InstallPWA';
 
 const Header = ({ title, rightContent }) => {
   return (
@@ -13,11 +14,11 @@ const Header = ({ title, rightContent }) => {
             </div>
             <h1 className="text-lg font-bold tracking-tight">{title || 'RestauTrack'}</h1>
           </div>
-          {rightContent && (
-            <div className="flex items-center gap-2">
-              {rightContent}
-            </div>
-          )}
+          
+          <div className="flex items-center gap-2">
+            <InstallPWA />
+            {rightContent}
+          </div>
         </div>
       </header>
     </>
