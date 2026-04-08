@@ -2,16 +2,16 @@ import { useRef, useCallback, useEffect, useState } from 'react';
 import { saveDailyRecord } from '../services/dailyRecordService';
 import { AUTO_SAVE_DELAY } from '../utils/constants';
 
-export const useAutoSave = (userId, dateId) => {
+export const useAutoSave = (userId, hotelId, dateId) => {
   const timerRef = useRef(null);
   const pendingDataRef = useRef(null);
   const [saveStatus, setSaveStatus] = useState('idle'); // idle | saving | saved | error
 
   const flushPendingWrites = useCallback(async () => {
-    if (pendingDataRef.current && userId && dateId) {
+    if (pendingDataRef.current && userId && hotelId && dateId) {
       try {
         setSaveStatus('saving');
-        await saveDailyRecord(userId, dateId, pendingDataRef.current);
+        await saveDailyRecord(userId, hotelId, dateId, pendingDataRef.current);
         pendingDataRef.current = null;
         setSaveStatus('saved');
         setTimeout(() => setSaveStatus('idle'), 2000);
@@ -20,7 +20,7 @@ export const useAutoSave = (userId, dateId) => {
         setSaveStatus('error');
       }
     }
-  }, [userId, dateId]);
+  }, [userId, hotelId, dateId]);
 
   const triggerAutoSave = useCallback((data) => {
     pendingDataRef.current = data;
@@ -31,10 +31,10 @@ export const useAutoSave = (userId, dateId) => {
     }
 
     timerRef.current = setTimeout(async () => {
-      if (pendingDataRef.current && userId && dateId) {
+      if (pendingDataRef.current && userId && hotelId && dateId) {
         try {
           setSaveStatus('saving');
-          await saveDailyRecord(userId, dateId, pendingDataRef.current);
+          await saveDailyRecord(userId, hotelId, dateId, pendingDataRef.current);
           pendingDataRef.current = null;
           setSaveStatus('saved');
           setTimeout(() => setSaveStatus('idle'), 2000);
@@ -44,14 +44,14 @@ export const useAutoSave = (userId, dateId) => {
         }
       }
     }, AUTO_SAVE_DELAY);
-  }, [userId, dateId]);
+  }, [userId, hotelId, dateId]);
 
   // Flush on beforeunload and visibilitychange
   useEffect(() => {
     const handleBeforeUnload = () => {
-      if (pendingDataRef.current && userId && dateId) {
+      if (pendingDataRef.current && userId && hotelId && dateId) {
         // Use sync approach for beforeunload
-        saveDailyRecord(userId, dateId, pendingDataRef.current).catch(() => {});
+        saveDailyRecord(userId, hotelId, dateId, pendingDataRef.current).catch(() => {});
         pendingDataRef.current = null;
       }
     };
@@ -72,7 +72,7 @@ export const useAutoSave = (userId, dateId) => {
       // Flush on unmount
       flushPendingWrites();
     };
-  }, [flushPendingWrites, userId, dateId]);
+  }, [flushPendingWrites, userId, hotelId, dateId]);
 
   return { triggerAutoSave, flushPendingWrites, saveStatus };
 };

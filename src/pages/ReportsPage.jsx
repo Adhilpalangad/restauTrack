@@ -7,6 +7,7 @@ import Skeleton from '../components/common/Skeleton';
 import EmptyState from '../components/common/EmptyState';
 
 import { useAuth } from '../context/AuthContext';
+import { useHotel } from '../context/HotelContext';
 import { getAllRecordsByDateRange } from '../services/dailyRecordService';
 import { exportToExcel } from '../services/exportService';
 import { getDateRange, formatShortDate } from '../utils/dates';
@@ -24,6 +25,7 @@ const CHART_COLORS = ['#F18F01', '#2E86AB', '#E74C3C', '#2ECC71', '#9B59B6', '#1
 
 const ReportsPage = () => {
   const { user } = useAuth();
+  const { selectedHotel } = useHotel();
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activePeriod, setActivePeriod] = useState('thisMonth');
@@ -32,17 +34,20 @@ const ReportsPage = () => {
   const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
+    // Clear out to avoid cross-hotel data bleeding
+    setRecords([]);
+
     const range = getDateRange('thisMonth');
     setStartDate(range.start);
     setEndDate(range.end);
     fetchRecords(range.start, range.end);
-  }, [user]);
+  }, [user, selectedHotel]);
 
   const fetchRecords = async (start, end) => {
     if (!user) return;
     setLoading(true);
     try {
-      const data = await getAllRecordsByDateRange(user.uid, start, end);
+      const data = await getAllRecordsByDateRange(user.uid, selectedHotel, start, end);
       setRecords(data);
     } catch (err) {
       console.error('Failed to fetch reports data:', err);

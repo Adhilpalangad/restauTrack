@@ -11,14 +11,17 @@ import Modal from '../components/common/Modal';
 import Skeleton from '../components/common/Skeleton';
 
 import { useAuth } from '../context/AuthContext';
+import { useHotel } from '../context/HotelContext';
 import { useAutoSave } from '../hooks/useAutoSave';
 import { useCategories } from '../hooks/useCategories';
 import { getDailyRecord, saveDailyRecord, submitDailyRecord, unlockDailyRecord, createEmptyRecord } from '../services/dailyRecordService';
 import { incrementCategoryUsage } from '../services/categoryService';
+import { generateDailyPDF } from '../services/pdfService';
 import { getToday, getYesterday, formatDisplayDate } from '../utils/dates';
 
 const TodayPage = () => {
   const { user } = useAuth();
+  const { selectedHotel } = useHotel();
   const today = getToday();
   
   const [record, setRecord] = useState(null);
@@ -27,18 +30,24 @@ const TodayPage = () => {
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [showUnlockModal, setShowUnlockModal] = useState(false);
   
-  const { triggerAutoSave, saveStatus } = useAutoSave(user?.uid, today);
+  const { triggerAutoSave, saveStatus } = useAutoSave(user?.uid, selectedHotel, today);
   const { searchCategories, refreshCategories } = useCategories(user?.uid);
 
   // Load today's record
   useEffect(() => {
+    // Clear cache immediately to prevent cross-hotel data bleeding
+    setRecord(null);
+    setLoading(true);
+
     const loadRecord = async () => {
       if (!user) return;
       try {
-        let rec = await getDailyRecord(user.uid, today);
-        if (!rec) {
+        let rec = await getDailyRecord(user.uid, selectedHotel, today);
+        if (!rec && selectedHotel !== 'ALL') {
           rec = createEmptyRecord(today);
-          await saveDailyRecord(user.uid, today, rec);
+          await saveDailyRecord(user.uid, selectedHotel, today, rec);
+        } else if (!rec && selectedHotel === 'ALL') {
+          rec = createEmptyRecord(today);
         }
         setRecord(rec);
       } catch (err) {
@@ -49,9 +58,9 @@ const TodayPage = () => {
       }
     };
     loadRecord();
-  }, [user, today]);
+  }, [user, selectedHotel, today]);
 
-  const isReadOnly = record?.status === 'submitted';
+  const isReadOnly = record?.status === 'submitted' || selectedHotel === 'ALL';
 
   // Compute totals
   const totalExpense = record?.expenses?.reduce((sum, e) => sum + (e.amount || 0), 0) || 0;
@@ -84,7 +93,7 @@ const TodayPage = () => {
   const handleCopyFromYesterday = async () => {
     try {
       const yesterday = getYesterday();
-      const yesterdayRecord = await getDailyRecord(user.uid, yesterday);
+      const yesterdayRecord = await getDailyRecord(user.uid, selectedHotel, yesterday);
       if (!yesterdayRecord || !yesterdayRecord.expenses?.length) {
         toast.error('No expenses found from yesterday');
         return;
@@ -116,7 +125,7 @@ const TodayPage = () => {
         netProfit,
         status: 'submitted',
       };
-      await submitDailyRecord(user.uid, today, finalData);
+      await submitDailyRecord(user.uid, selectedHotel, today, finalData);
       setRecord(finalData);
       
       // Update category usage counts
@@ -143,7 +152,7 @@ const TodayPage = () => {
   const handleUnlock = async () => {
     setShowUnlockModal(false);
     try {
-      await unlockDailyRecord(user.uid, today);
+      await unlockDailyRecord(user.uid, selectedHotel, today);
       setRecord((prev) => ({ ...prev, status: 'draft' }));
       toast.success('Record unlocked for editing');
     } catch (err) {
@@ -201,11 +210,22 @@ const TodayPage = () => {
               {formatDisplayDate(today)}
             </span>
           </div>
-          <span className={record?.status === 'submitted' ? 'badge-submitted' : 'badge-draft'}>
-            {record?.status === 'submitted' ? (
-              <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Submitted</span>
-            ) : 'Draft'}
-          </span>
+          <div className="flex items-center gap-2">
+            {(totalIncome > 0 || totalExpense > 0) && (
+              <button
+                onClick={() => generateDailyPDF(record, selectedHotel, selectedHotel === 'ALL')}
+                className="btn-ghost !px-3 !py-1 text-primary border border-primary/20 hover:bg-primary/5 mr-1"
+                title="Download PDF"
+              >
+                Download PDF
+              </button>
+            )}
+            <span className={record?.status === 'submitted' ? 'badge-submitted' : 'badge-draft'}>
+              {record?.status === 'submitted' || selectedHotel === 'ALL' ? (
+                <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> {selectedHotel === 'ALL' ? 'Read Only' : 'Submitted'}</span>
+              ) : 'Draft'}
+            </span>
+          </div>
         </div>
 
         {/* Income */}
@@ -226,33 +246,35 @@ const TodayPage = () => {
         />
 
         {/* Submit / Unlock Button */}
-        {isReadOnly ? (
-          <button
-            onClick={() => setShowUnlockModal(true)}
-            className="btn-ghost w-full flex items-center justify-center gap-2 border border-border"
-          >
-            <Unlock className="w-4 h-4" />
-            Unlock & Edit
-          </button>
-        ) : (
-          (totalIncome > 0 || totalExpense > 0) && (
+        {selectedHotel !== 'ALL' && (
+          isReadOnly ? (
             <button
-              onClick={() => setShowSubmitModal(true)}
-              disabled={submitting}
-              className="btn-primary w-full flex items-center justify-center gap-2"
+              onClick={() => setShowUnlockModal(true)}
+              className="btn-ghost w-full flex items-center justify-center gap-2 border border-border"
             >
-              {submitting ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  Submitting...
-                </>
-              ) : (
-                <>
-                  <Lock className="w-4 h-4" />
-                  Submit Day
-                </>
-              )}
+              <Unlock className="w-4 h-4" />
+              Unlock & Edit
             </button>
+          ) : (
+            (totalIncome > 0 || totalExpense > 0) && (
+              <button
+                onClick={() => setShowSubmitModal(true)}
+                disabled={submitting}
+                className="btn-primary w-full flex items-center justify-center gap-2"
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    <Lock className="w-4 h-4" />
+                    Submit Day
+                  </>
+                )}
+              </button>
+            )
           )
         )}
       </div>

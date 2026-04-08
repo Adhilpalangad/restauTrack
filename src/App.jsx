@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 
 import { AuthProvider } from './context/AuthContext';
+import { HotelProvider } from './context/HotelContext';
 import AuthGuard from './components/auth/AuthGuard';
 import LoginPage from './components/auth/LoginPage';
 import AppLayout from './components/layout/AppLayout';
@@ -14,7 +15,8 @@ import SettingsPage from './pages/SettingsPage';
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <HotelProvider>
+        <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route
@@ -31,6 +33,7 @@ function App() {
           </Route>
         </Routes>
       </BrowserRouter>
+      </HotelProvider>
       
       <Toaster
         position="top-center"

@@ -9,12 +9,14 @@ import EmptyState from '../components/common/EmptyState';
 import Skeleton from '../components/common/Skeleton';
 
 import { useAuth } from '../context/AuthContext';
+import { useHotel } from '../context/HotelContext';
 import { getRecordsByDateRange } from '../services/dailyRecordService';
 import { getDateRange, getToday } from '../utils/dates';
 import { HISTORY_PAGE_SIZE } from '../utils/constants';
 
 const HistoryPage = () => {
   const { user } = useAuth();
+  const { selectedHotel } = useHotel();
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -32,7 +34,7 @@ const HistoryPage = () => {
       else setLoading(true);
 
       const result = await getRecordsByDateRange(
-        user.uid, start, end, HISTORY_PAGE_SIZE, append ? lastDoc : null
+        user.uid, selectedHotel, start, end, HISTORY_PAGE_SIZE, append ? lastDoc : null
       );
 
       if (append) {
@@ -53,11 +55,15 @@ const HistoryPage = () => {
 
   // Initial load
   useEffect(() => {
+    // Clear out to avoid cross-hotel data bleeding
+    setRecords([]);
+    setLastDoc(null);
+    
     const range = getDateRange('thisMonth');
     setStartDate(range.start);
     setEndDate(range.end);
     fetchRecords(range.start, range.end);
-  }, [user]);
+  }, [user, selectedHotel]);
 
   const handlePresetChange = (preset) => {
     setActivePreset(preset);

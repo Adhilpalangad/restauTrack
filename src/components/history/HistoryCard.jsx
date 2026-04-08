@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronUp, CheckCircle2, Clock } from 'lucide-react';
 import { formatDisplayDate, formatShortDate } from '../../utils/dates';
+import { generateDailyPDF } from '../../services/pdfService';
+import { useHotel } from '../../context/HotelContext';
 import { formatCurrency, formatCompact } from '../../utils/currency';
 
 const HistoryCard = ({ record }) => {
+  const { selectedHotel } = useHotel();
   const [expanded, setExpanded] = useState(false);
   const isSubmitted = record.status === 'submitted';
   const isProfit = (record.netProfit || 0) >= 0;
@@ -18,13 +21,25 @@ const HistoryCard = ({ record }) => {
         <h3 className="text-sm font-semibold text-text-primary">
           {formatDisplayDate(record.date)}
         </h3>
-        <span className={isSubmitted ? 'badge-submitted' : 'badge-draft'}>
-          {isSubmitted ? (
-            <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Done</span>
-          ) : (
-            <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> Draft</span>
-          )}
-        </span>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              generateDailyPDF(record, selectedHotel, selectedHotel === 'ALL');
+            }}
+            className="p-1 rounded hover:bg-gray-100 text-primary border border-transparent hover:border-border transition-colors"
+            title="Download PDF"
+          >
+            <span className="text-[10px] font-medium mr-1 uppercase">PDF</span>
+          </button>
+          <span className={isSubmitted || selectedHotel === 'ALL' ? 'badge-submitted' : 'badge-draft'}>
+            {isSubmitted || selectedHotel === 'ALL' ? (
+              <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> {selectedHotel === 'ALL' ? 'Done' : 'Done'}</span>
+            ) : (
+              <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> Draft</span>
+            )}
+          </span>
+        </div>
       </div>
 
       {/* Summary */}

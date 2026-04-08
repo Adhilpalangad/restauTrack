@@ -11,9 +11,11 @@ import { useCategories } from '../hooks/useCategories';
 import { deleteCategory } from '../services/categoryService';
 import { getAllRecordsByDateRange } from '../services/dailyRecordService';
 import { exportToExcel, exportAllData } from '../services/exportService';
+import { useHotel } from '../context/HotelContext';
 
 const SettingsPage = () => {
   const { user } = useAuth();
+  const { selectedHotel } = useHotel();
   const { categories, refreshCategories } = useCategories(user?.uid);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showCategoriesModal, setShowCategoriesModal] = useState(false);
@@ -42,7 +44,7 @@ const SettingsPage = () => {
   const handleExportExcel = async () => {
     setExporting(true);
     try {
-      const records = await getAllRecordsByDateRange(user.uid, '2020-01-01', '2030-12-31');
+      const records = await getAllRecordsByDateRange(user.uid, selectedHotel, '2020-01-01', '2030-12-31');
       exportToExcel(records, 'all-time', 'all-time');
       toast.success('Excel exported!');
     } catch (err) {
@@ -55,7 +57,7 @@ const SettingsPage = () => {
   const handleExportJson = async () => {
     setExportingJson(true);
     try {
-      const records = await getAllRecordsByDateRange(user.uid, '2020-01-01', '2030-12-31');
+      const records = await getAllRecordsByDateRange(user.uid, selectedHotel, '2020-01-01', '2030-12-31');
       exportAllData(records);
       toast.success('Backup created!');
     } catch (err) {
