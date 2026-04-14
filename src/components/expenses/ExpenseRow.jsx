@@ -18,7 +18,7 @@ const ExpenseRow = ({ expense, onUpdate, onDelete, searchCategories, readOnly, i
 
   return (
     <div
-      className="rounded-xl overflow-hidden animate-slide-in"
+      className="rounded-xl animate-slide-in"
       style={{
         animationDelay: `${index * 40}ms`,
         background: 'rgba(255, 255, 255, 0.03)',
