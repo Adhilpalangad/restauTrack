@@ -4,6 +4,8 @@ export const getToday = () => format(new Date(), 'yyyy-MM-dd');
 
 export const getYesterday = () => format(subDays(new Date(), 1), 'yyyy-MM-dd');
 
+export const getPreviousDate = (dateStr) => format(subDays(parseISO(dateStr), 1), 'yyyy-MM-dd');
+
 export const formatDateId = (date) => format(date, 'yyyy-MM-dd');
 
 export const formatDisplayDate = (dateStr) => {

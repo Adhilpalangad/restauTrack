@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Timestamp } from 'firebase/firestore';
-import { Check, Loader2, Lock, Unlock, CalendarDays, CheckCircle2 } from 'lucide-react';
+import { Check, Loader2, Lock, Unlock, CalendarDays, CheckCircle2, ChevronDown, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 import Header from '../components/layout/Header';
@@ -9,136 +9,130 @@ import ExpenseCard from '../components/expenses/ExpenseCard';
 import DailySummary from '../components/summary/DailySummary';
 import Modal from '../components/common/Modal';
 import Skeleton from '../components/common/Skeleton';
+import SalaryPage from './SalaryPage';
 
 import { useAuth } from '../context/AuthContext';
 import { useHotel } from '../context/HotelContext';
 import { useAutoSave } from '../hooks/useAutoSave';
 import { useCategories } from '../hooks/useCategories';
-import { getDailyRecord, saveDailyRecord, submitDailyRecord, unlockDailyRecord, createEmptyRecord } from '../services/dailyRecordService';
+import {
+  getDailyRecord,
+  submitDailyRecord,
+  unlockDailyRecord,
+  softDeleteRecord,
+  createEmptyRecord,
+} from '../services/dailyRecordService';
 import { incrementCategoryUsage } from '../services/categoryService';
 import { generateDailyPDF } from '../services/pdfService';
-import { getToday, getYesterday, formatDisplayDate } from '../utils/dates';
+import { getToday, formatDisplayDate, getPreviousDate } from '../utils/dates';
 
 const TodayPage = () => {
   const { user } = useAuth();
   const { selectedHotel } = useHotel();
   const today = getToday();
-  
+
+  const [selectedDate, setSelectedDate] = useState(today);
+  const isToday = selectedDate === today;
+  const isSalary = selectedHotel === 'SALARY';
+
   const [record, setRecord] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [showUnlockModal, setShowUnlockModal] = useState(false);
-  
-  const { triggerAutoSave, saveStatus } = useAutoSave(user?.uid, selectedHotel, today);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  // Hooks always called unconditionally (React rules)
+  const { triggerAutoSave, saveStatus } = useAutoSave(
+    user?.uid,
+    isSalary ? null : selectedHotel,
+    selectedDate
+  );
   const { searchCategories, refreshCategories } = useCategories(user?.uid);
 
-  // Load today's record
+  // Load record — skip when SALARY tab is active
   useEffect(() => {
-    // Clear cache immediately to prevent cross-hotel data bleeding
+    if (isSalary) {
+      setLoading(false);
+      return;
+    }
+
     setRecord(null);
     setLoading(true);
 
     const loadRecord = async () => {
       if (!user) return;
       try {
-        let rec = await getDailyRecord(user.uid, selectedHotel, today);
-        if (!rec && selectedHotel !== 'ALL') {
-          rec = createEmptyRecord(today);
-          await saveDailyRecord(user.uid, selectedHotel, today, rec);
-        } else if (!rec && selectedHotel === 'ALL') {
-          rec = createEmptyRecord(today);
+        let rec = await getDailyRecord(user.uid, selectedHotel, selectedDate);
+        if (!rec) {
+          rec = createEmptyRecord(selectedDate);
         }
         setRecord(rec);
       } catch (err) {
         console.error('Failed to load record:', err);
-        toast.error('Failed to load today\'s record');
+        toast.error('Failed to load record');
       } finally {
         setLoading(false);
       }
     };
     loadRecord();
-  }, [user, selectedHotel, today]);
+  }, [user, selectedHotel, selectedDate, isSalary]);
 
-  const isReadOnly = record?.status === 'submitted' || selectedHotel === 'ALL';
+  const isReadOnly = record?.status === 'submitted';
 
-  // Compute totals
   const totalExpense = record?.expenses?.reduce((sum, e) => sum + (e.amount || 0), 0) || 0;
   const totalIncome = record?.income?.total || 0;
   const netProfit = totalIncome - totalExpense;
+  const hasData = totalIncome > 0 || totalExpense > 0;
 
-  // Update & auto-save
   const updateRecord = useCallback((updates) => {
     setRecord((prev) => {
       const updated = { ...prev, ...updates };
-      // Recalculate totals
-      const expenses = updated.expenses || [];
-      updated.totalExpense = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+      updated.totalExpense = (updated.expenses || []).reduce((sum, e) => sum + (e.amount || 0), 0);
       updated.netProfit = (updated.income?.total || 0) - updated.totalExpense;
-      
       triggerAutoSave(updated);
       return updated;
     });
   }, [triggerAutoSave]);
 
-  const handleIncomeChange = (income) => {
-    updateRecord({ income });
-  };
+  const handleIncomeChange = (income) => updateRecord({ income });
+  const handleExpensesChange = (expenses) => updateRecord({ expenses });
 
-  const handleExpensesChange = (expenses) => {
-    updateRecord({ expenses });
-  };
-
-  // Copy from yesterday
-  const handleCopyFromYesterday = async () => {
+  const handleCopyFromPrevious = async () => {
     try {
-      const yesterday = getYesterday();
-      const yesterdayRecord = await getDailyRecord(user.uid, selectedHotel, yesterday);
-      if (!yesterdayRecord || !yesterdayRecord.expenses?.length) {
-        toast.error('No expenses found from yesterday');
+      const prevDate = getPreviousDate(selectedDate);
+      const prevRecord = await getDailyRecord(user.uid, selectedHotel, prevDate);
+      if (!prevRecord || !prevRecord.expenses?.length) {
+        toast.error('No expenses found from the previous day');
         return;
       }
-      
-      const copiedExpenses = yesterdayRecord.expenses.map((e) => ({
+      const copied = prevRecord.expenses.map((e) => ({
         id: crypto.randomUUID(),
         category: e.category,
-        amount: 0, // Clear amounts
+        amount: 0,
         note: '',
         timestamp: Timestamp.now(),
       }));
-      
-      handleExpensesChange([...(record?.expenses || []), ...copiedExpenses]);
-      toast.success(`Copied ${copiedExpenses.length} categories from yesterday`);
-    } catch (err) {
-      toast.error('Failed to copy from yesterday');
+      handleExpensesChange([...(record?.expenses || []), ...copied]);
+      toast.success(`Copied ${copied.length} categories from previous day`);
+    } catch {
+      toast.error('Failed to copy from previous day');
     }
   };
 
-  // Submit
   const handleSubmit = async () => {
     setShowSubmitModal(false);
     setSubmitting(true);
     try {
-      const finalData = {
-        ...record,
-        totalExpense,
-        netProfit,
-        status: 'submitted',
-      };
-      await submitDailyRecord(user.uid, selectedHotel, today, finalData);
+      const finalData = { ...record, totalExpense, netProfit, status: 'submitted' };
+      await submitDailyRecord(user.uid, selectedHotel, selectedDate, finalData);
       setRecord(finalData);
-      
-      // Update category usage counts
-      const categories = record.expenses
-        .map((e) => e.category)
-        .filter((c) => c && c.trim());
-      
+      const categories = record.expenses.map((e) => e.category).filter((c) => c?.trim());
       for (const cat of [...new Set(categories)]) {
         await incrementCategoryUsage(user.uid, cat);
       }
       await refreshCategories();
-      
-      toast.success('Day submitted successfully!');
+      toast.success('Record submitted!');
       if (navigator.vibrate) navigator.vibrate(10);
     } catch (err) {
       console.error('Submit failed:', err);
@@ -148,31 +142,42 @@ const TodayPage = () => {
     }
   };
 
-  // Unlock
   const handleUnlock = async () => {
     setShowUnlockModal(false);
     try {
-      await unlockDailyRecord(user.uid, selectedHotel, today);
+      await unlockDailyRecord(user.uid, selectedHotel, selectedDate);
       setRecord((prev) => ({ ...prev, status: 'draft' }));
       toast.success('Record unlocked for editing');
-    } catch (err) {
+    } catch {
       toast.error('Failed to unlock record');
     }
   };
 
-  // Save status indicator
+  const handleDelete = async () => {
+    setShowDeleteModal(false);
+    try {
+      if (record?.id) {
+        await softDeleteRecord(user.uid, selectedHotel, selectedDate);
+      }
+      setRecord(createEmptyRecord(selectedDate));
+      toast.success('Record deleted');
+    } catch {
+      toast.error('Failed to delete record');
+    }
+  };
+
   const SaveIndicator = () => {
     if (saveStatus === 'saving') {
       return (
-        <div className="flex items-center gap-1 text-xs text-white/70">
+        <div className="flex items-center gap-1 text-xs" style={{ color: 'rgba(255,255,255,0.45)' }}>
           <Loader2 className="w-3 h-3 animate-spin" />
-          <span>Saving...</span>
+          <span>Saving…</span>
         </div>
       );
     }
     if (saveStatus === 'saved') {
       return (
-        <div className="flex items-center gap-1 text-xs text-success">
+        <div className="flex items-center gap-1 text-xs" style={{ color: 'rgba(52,211,153,0.85)' }}>
           <Check className="w-3 h-3" />
           <span>Saved</span>
         </div>
@@ -181,55 +186,93 @@ const TodayPage = () => {
     return null;
   };
 
+  // ── Salary tab — render salary management UI ──────────────────────────────
+  if (isSalary) {
+    return (
+      <>
+        <Header title="RestauTrack" />
+        <SalaryPage />
+      </>
+    );
+  }
+
+  // ── Loading skeleton ──────────────────────────────────────────────────────
   if (loading) {
     return (
       <>
         <Header title="RestauTrack" />
         <div className="p-4 space-y-4">
-          <Skeleton variant="title" className="w-48" />
-          <Skeleton variant="card" className="h-48" />
-          <Skeleton variant="card" className="h-64" />
+          <div className="skeleton h-12 w-full rounded-2xl" />
+          <div className="skeleton h-48 w-full rounded-2xl" />
+          <div className="skeleton h-64 w-full rounded-2xl" />
         </div>
       </>
     );
   }
 
+  // ── Normal daily entry view ───────────────────────────────────────────────
   return (
     <>
-      <Header 
-        title="RestauTrack" 
-        rightContent={<SaveIndicator />}
-      />
-      
-      <div className="p-4 space-y-4 pb-36">
-        {/* Date & Status */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <CalendarDays className="w-5 h-5 text-primary" />
-            <span className="text-base font-semibold text-text-primary">
-              {formatDisplayDate(today)}
+      <Header title="RestauTrack" rightContent={<SaveIndicator />} />
+
+      <div className="p-4 space-y-4 pb-56">
+
+        {/* Date bar */}
+        <div
+          className="flex items-center justify-between rounded-2xl px-4 py-3"
+          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
+        >
+          {/* Clickable date picker */}
+          <div className="relative flex items-center gap-2.5">
+            <input
+              type="date"
+              value={selectedDate}
+              max={today}
+              onChange={(e) => e.target.value && setSelectedDate(e.target.value)}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              aria-label="Select date"
+            />
+            <CalendarDays className="w-4 h-4 pointer-events-none" style={{ color: 'rgba(129,140,248,0.7)' }} />
+            <span className="text-sm font-bold text-white pointer-events-none">
+              {formatDisplayDate(selectedDate)}
             </span>
+            <ChevronDown className="w-3.5 h-3.5 pointer-events-none" style={{ color: 'rgba(255,255,255,0.28)' }} />
           </div>
+
           <div className="flex items-center gap-2">
-            {(totalIncome > 0 || totalExpense > 0) && (
+            {!isToday && (
               <button
-                onClick={() => generateDailyPDF(record, selectedHotel, selectedHotel === 'ALL')}
-                className="btn-ghost !px-3 !py-1 text-primary border border-primary/20 hover:bg-primary/5 mr-1"
-                title="Download PDF"
+                onClick={() => setSelectedDate(today)}
+                className="text-[11px] font-bold px-2.5 py-1 rounded-lg transition-all"
+                style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.25)', color: '#818CF8' }}
               >
-                Download PDF
+                Today
               </button>
             )}
+
+            {hasData && (
+              <button
+                onClick={() => generateDailyPDF(record, selectedHotel, false)}
+                title="Download PDF"
+                className="text-xs font-semibold px-3 py-1 rounded-lg transition-all active:scale-95"
+                style={{ background: 'rgba(99,102,241,0.10)', border: '1px solid rgba(99,102,241,0.22)', color: 'rgba(129,140,248,0.80)' }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(99,102,241,0.20)'; e.currentTarget.style.color = '#818CF8'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(99,102,241,0.10)'; e.currentTarget.style.color = 'rgba(129,140,248,0.80)'; }}
+              >
+                PDF
+              </button>
+            )}
+
             <span className={record?.status === 'submitted' ? 'badge-submitted' : 'badge-draft'}>
-              {record?.status === 'submitted' || selectedHotel === 'ALL' ? (
-                <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> {selectedHotel === 'ALL' ? 'Read Only' : 'Submitted'}</span>
+              {record?.status === 'submitted' ? (
+                <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3" />Submitted</span>
               ) : 'Draft'}
             </span>
           </div>
         </div>
 
         {/* Income */}
-        <IncomeCard 
+        <IncomeCard
           income={record?.income || { cash: 0, online: 0, total: 0 }}
           onChange={handleIncomeChange}
           readOnly={isReadOnly}
@@ -241,56 +284,57 @@ const TodayPage = () => {
           onChange={handleExpensesChange}
           searchCategories={searchCategories}
           readOnly={isReadOnly}
-          onCopyFromYesterday={handleCopyFromYesterday}
+          onCopyFromYesterday={handleCopyFromPrevious}
           totalExpense={totalExpense}
         />
 
-        {/* Submit / Unlock Button */}
-        {selectedHotel !== 'ALL' && (
-          isReadOnly ? (
+        {/* Actions */}
+        <div className="space-y-2">
+          {isReadOnly ? (
             <button
               onClick={() => setShowUnlockModal(true)}
-              className="btn-ghost w-full flex items-center justify-center gap-2 border border-border"
+              className="btn-ghost w-full flex items-center justify-center gap-2"
             >
               <Unlock className="w-4 h-4" />
               Unlock & Edit
             </button>
           ) : (
-            (totalIncome > 0 || totalExpense > 0) && (
+            hasData && (
               <button
                 onClick={() => setShowSubmitModal(true)}
                 disabled={submitting}
                 className="btn-primary w-full flex items-center justify-center gap-2"
               >
                 {submitting ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Submitting...
-                  </>
+                  <><Loader2 className="w-5 h-5 animate-spin" />Submitting…</>
                 ) : (
-                  <>
-                    <Lock className="w-4 h-4" />
-                    Submit Day
-                  </>
+                  <><Lock className="w-4 h-4" />{isToday ? 'Submit Day' : `Submit ${formatDisplayDate(selectedDate)}`}</>
                 )}
               </button>
             )
-          )
-        )}
+          )}
+
+          {hasData && !isReadOnly && (
+            <button
+              onClick={() => setShowDeleteModal(true)}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all"
+              style={{ color: 'rgba(244,63,94,0.55)' }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = '#F43F5E')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(244,63,94,0.55)')}
+            >
+              <Trash2 className="w-4 h-4" />
+              Delete Record
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Summary */}
-      <DailySummary
-        income={totalIncome}
-        totalExpense={totalExpense}
-        netProfit={netProfit}
-      />
+      <DailySummary income={totalIncome} totalExpense={totalExpense} netProfit={netProfit} />
 
-      {/* Submit Confirmation Modal */}
       <Modal
         isOpen={showSubmitModal}
         onClose={() => setShowSubmitModal(false)}
-        title="Submit Today's Record?"
+        title="Submit Record?"
         actions={
           <>
             <button onClick={() => setShowSubmitModal(false)} className="btn-ghost flex-1">Cancel</button>
@@ -298,12 +342,12 @@ const TodayPage = () => {
           </>
         }
       >
-        <p className="text-sm text-text-body">
-          Submit today's record? You won't be able to edit after this. You can unlock it later if needed.
+        <p className="text-sm">
+          Submit the record for <span className="text-white font-semibold">{formatDisplayDate(selectedDate)}</span>?
+          You can unlock it later if needed.
         </p>
       </Modal>
 
-      {/* Unlock Confirmation Modal */}
       <Modal
         isOpen={showUnlockModal}
         onClose={() => setShowUnlockModal(false)}
@@ -315,8 +359,25 @@ const TodayPage = () => {
           </>
         }
       >
-        <p className="text-sm text-text-body">
-          This will unlock the submitted record for editing. Are you sure?
+        <p className="text-sm">
+          Unlock <span className="text-white font-semibold">{formatDisplayDate(selectedDate)}</span> for editing?
+        </p>
+      </Modal>
+
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        title="Delete Record?"
+        actions={
+          <>
+            <button onClick={() => setShowDeleteModal(false)} className="btn-ghost flex-1">Cancel</button>
+            <button onClick={handleDelete} className="btn-danger flex-1">Delete</button>
+          </>
+        }
+      >
+        <p className="text-sm">
+          Delete the record for <span className="text-white font-semibold">{formatDisplayDate(selectedDate)}</span>?
+          This is recoverable by the admin if needed.
         </p>
       </Modal>
     </>

@@ -1,6 +1,5 @@
 import { doc, getDoc, setDoc, query, collection, where, orderBy, getDocs, limit, startAfter, Timestamp } from 'firebase/firestore';
 import { db } from './firebase';
-import { getToday } from '../utils/dates';
 
 const ALL_HOTELS = ['AWH', 'MEDICAL COLLEGE', 'STARCARE'];
 
@@ -23,6 +22,10 @@ export const createEmptyRecord = (dateId) => ({
   updatedAt: Timestamp.now(),
 });
 
+// A record counts as "has data" if income or expenses exist
+const hasData = (r) =>
+  (r.income?.total || 0) > 0 || (r.totalExpense || 0) > 0;
+
 const aggregateRecordsList = (recordsList) => {
   const map = {};
   recordsList.forEach(r => {
@@ -36,11 +39,13 @@ const aggregateRecordsList = (recordsList) => {
     acc.totalExpense += r.totalExpense || 0;
     acc.netProfit += r.netProfit || 0;
     if (r.expenses && r.expenses.length > 0) {
-      acc.expenses.push(...r.expenses.map(e => ({...e, hotelSource: r.hotelId})));
+      acc.expenses.push(...r.expenses.map(e => ({ ...e, hotelSource: r.hotelId })));
     }
-    acc.status = 'submitted'; // Prevent editing visually
+    acc.status = 'submitted';
   });
-  return Object.values(map).sort((a,b) => b.date.localeCompare(a.date));
+  return Object.values(map)
+    .filter(hasData)
+    .sort((a, b) => b.date.localeCompare(a.date));
 };
 
 export const getDailyRecord = async (userId, hotelId, dateId) => {
@@ -49,13 +54,16 @@ export const getDailyRecord = async (userId, hotelId, dateId) => {
     const results = await Promise.all(promises);
     const valid = results.filter(Boolean);
     if (valid.length === 0) return null;
-    return aggregateRecordsList(valid)[0];
+    return aggregateRecordsList(valid)[0] || null;
   }
 
   const ref = getRecordRef(userId, hotelId, dateId);
   const snap = await getDoc(ref);
   if (snap.exists()) {
-    return { id: snap.id, hotelId, ...snap.data() };
+    const data = snap.data();
+    // Treat soft-deleted records as non-existent for editing
+    if (data.deleted) return null;
+    return { id: snap.id, hotelId, ...data };
   }
   return null;
 };
@@ -89,6 +97,16 @@ export const unlockDailyRecord = async (userId, hotelId, dateId) => {
   await setDoc(ref, { status: 'draft', updatedAt: Timestamp.now() }, { merge: true });
 };
 
+export const softDeleteRecord = async (userId, hotelId, dateId) => {
+  if (hotelId === 'ALL') throw new Error("Cannot delete in ALL mode");
+  const ref = getRecordRef(userId, hotelId, dateId);
+  await setDoc(ref, {
+    deleted: true,
+    deletedAt: Timestamp.now(),
+    updatedAt: Timestamp.now(),
+  }, { merge: true });
+};
+
 export const getRecordsByDateRange = async (userId, hotelId, startDate, endDate, pageSize = 30, lastDoc = null) => {
   if (hotelId === 'ALL') {
     const all = await getAllRecordsByDateRange(userId, 'ALL', startDate, endDate);
@@ -97,7 +115,7 @@ export const getRecordsByDateRange = async (userId, hotelId, startDate, endDate,
 
   const col = getRecordsCollection(userId, hotelId);
   let q;
-  
+
   if (lastDoc) {
     q = query(
       col,
@@ -116,11 +134,14 @@ export const getRecordsByDateRange = async (userId, hotelId, startDate, endDate,
       limit(pageSize)
     );
   }
-  
+
   const snap = await getDocs(q);
-  const records = snap.docs.map((d) => ({ id: d.id, hotelId, ...d.data() }));
+  const records = snap.docs
+    .map((d) => ({ id: d.id, hotelId, ...d.data() }))
+    .filter(r => !r.deleted && hasData(r));
+
   const lastVisible = snap.docs[snap.docs.length - 1] || null;
-  
+
   return { records, lastVisible, hasMore: snap.docs.length === pageSize };
 };
 
@@ -139,5 +160,7 @@ export const getAllRecordsByDateRange = async (userId, hotelId, startDate, endDa
     orderBy('date', 'desc')
   );
   const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, hotelId, ...d.data() }));
+  return snap.docs
+    .map((d) => ({ id: d.id, hotelId, ...d.data() }))
+    .filter(r => !r.deleted && hasData(r));
 };

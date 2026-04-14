@@ -3,8 +3,8 @@ import BottomNav from './BottomNav';
 
 const AppLayout = () => {
   return (
-    <div className="min-h-screen bg-bg-primary flex flex-col">
-      <main className="flex-1 pb-20 max-w-lg mx-auto w-full">
+    <div className="min-h-screen bg-dark-950 flex flex-col">
+      <main className="flex-1 max-w-lg mx-auto w-full">
         <Outlet />
       </main>
       <BottomNav />

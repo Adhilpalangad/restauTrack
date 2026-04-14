@@ -10,30 +10,44 @@ const navItems = [
 
 const BottomNav = () => {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-border z-50 safe-bottom" role="navigation" aria-label="Main navigation">
-      <div className="max-w-lg mx-auto flex items-center justify-around py-1">
+    <nav
+      className="fixed bottom-4 left-0 right-0 z-50 flex justify-center px-6 safe-bottom"
+      role="navigation"
+      aria-label="Main navigation"
+    >
+      <div
+        className="flex items-center gap-1 px-2 py-2 rounded-[28px]"
+        style={{
+          background: 'rgba(13, 15, 39, 0.94)',
+          backdropFilter: 'blur(28px)',
+          WebkitBackdropFilter: 'blur(28px)',
+          border: '1px solid rgba(255, 255, 255, 0.10)',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.08)',
+        }}
+      >
         {navItems.map(({ to, icon: Icon, label }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={to === '/'}
-            className={({ isActive }) =>
-              `flex flex-col items-center gap-0.5 py-2 px-4 rounded-xl transition-all duration-200 min-w-[64px] ${
-                isActive
-                  ? 'text-primary'
-                  : 'text-text-muted hover:text-text-body'
-              }`
-            }
-          >
+          <NavLink key={to} to={to} end={to === '/'} className="flex-1">
             {({ isActive }) => (
-              <>
-                <div className={`p-1.5 rounded-xl transition-all duration-200 ${isActive ? 'bg-primary/10' : ''}`}>
-                  <Icon className={`w-5 h-5 transition-all duration-200 ${isActive ? 'stroke-[2.5]' : ''}`} />
-                </div>
-                <span className={`text-[10px] font-medium transition-all ${isActive ? 'font-semibold' : ''}`}>
+              <div
+                className="flex flex-col items-center gap-0.5 px-5 py-2.5 rounded-[22px] transition-all duration-300 min-w-[64px]"
+                style={
+                  isActive
+                    ? {
+                        background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
+                        boxShadow: '0 4px 18px rgba(99, 102, 241, 0.45)',
+                        color: 'white',
+                      }
+                    : { color: 'rgba(255, 255, 255, 0.28)' }
+                }
+              >
+                <Icon
+                  className="w-5 h-5 transition-all duration-200"
+                  strokeWidth={isActive ? 2.2 : 1.6}
+                />
+                <span className={`text-[10px] transition-all ${isActive ? 'font-bold' : 'font-medium'}`}>
                   {label}
                 </span>
-              </>
+              </div>
             )}
           </NavLink>
         ))}

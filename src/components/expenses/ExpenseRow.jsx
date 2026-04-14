@@ -1,4 +1,4 @@
-import { Trash2, ChevronDown, ChevronUp, StickyNote } from 'lucide-react';
+import { Trash2, StickyNote } from 'lucide-react';
 import { useState } from 'react';
 import CategoryAutocomplete from './CategoryAutocomplete';
 
@@ -17,8 +17,23 @@ const ExpenseRow = ({ expense, onUpdate, onDelete, searchCategories, readOnly, i
   };
 
   return (
-    <div className="animate-slide-in" style={{ animationDelay: `${index * 50}ms` }}>
-      <div className="flex items-start gap-2">
+    <div
+      className="rounded-xl overflow-hidden animate-slide-in"
+      style={{
+        animationDelay: `${index * 40}ms`,
+        background: 'rgba(255, 255, 255, 0.03)',
+        border: '1px solid rgba(255, 255, 255, 0.06)',
+      }}
+    >
+      <div className="flex items-center gap-2 p-2.5">
+        {/* Index badge */}
+        <div
+          className="w-6 h-6 rounded-lg flex-shrink-0 flex items-center justify-center text-[11px] font-bold"
+          style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.28)' }}
+        >
+          {index + 1}
+        </div>
+
         {/* Category */}
         <CategoryAutocomplete
           value={expense.category}
@@ -29,7 +44,12 @@ const ExpenseRow = ({ expense, onUpdate, onDelete, searchCategories, readOnly, i
 
         {/* Amount */}
         <div className="relative w-28 flex-shrink-0">
-          <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-text-muted text-sm font-medium">₹</span>
+          <span
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium pointer-events-none"
+            style={{ color: 'rgba(255,255,255,0.28)' }}
+          >
+            ₹
+          </span>
           <input
             type="text"
             inputMode="numeric"
@@ -37,48 +57,93 @@ const ExpenseRow = ({ expense, onUpdate, onDelete, searchCategories, readOnly, i
             value={displayAmount(expense.amount)}
             onChange={(e) => handleAmountChange(e.target.value)}
             placeholder="0"
-            className="input-field text-sm py-2 pl-7 currency-display"
+            className="w-full py-2.5 pl-8 pr-3 rounded-lg text-sm font-bold text-white currency-display focus:outline-none transition-all"
+            style={{
+              background: 'rgba(244, 63, 94, 0.08)',
+              border: '1px solid rgba(244, 63, 94, 0.16)',
+              caretColor: '#F43F5E',
+            }}
+            onFocus={(e) => {
+              e.target.style.borderColor = 'rgba(244, 63, 94, 0.45)';
+              e.target.style.boxShadow = '0 0 0 3px rgba(244, 63, 94, 0.1)';
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = 'rgba(244, 63, 94, 0.16)';
+              e.target.style.boxShadow = 'none';
+            }}
             disabled={readOnly}
             aria-label={`Amount for ${expense.category || 'expense'}`}
           />
         </div>
 
-        {/* Actions */}
-        <div className="flex items-center gap-1 mt-0.5">
+        {/* Action buttons */}
+        <div className="flex items-center gap-0.5">
           <button
             type="button"
             onClick={() => setShowNote(!showNote)}
-            className={`p-2 rounded-lg transition-colors ${
-              showNote || expense.note ? 'text-accent bg-accent/10' : 'text-text-muted hover:text-text-body hover:bg-gray-100'
-            }`}
+            className="p-2 rounded-lg transition-all"
+            style={
+              showNote || expense.note
+                ? { color: '#FBBF24', background: 'rgba(245,158,11,0.12)' }
+                : { color: 'rgba(255,255,255,0.22)' }
+            }
+            onMouseEnter={(e) => {
+              if (!showNote && !expense.note) e.currentTarget.style.color = 'rgba(255,255,255,0.5)';
+            }}
+            onMouseLeave={(e) => {
+              if (!showNote && !expense.note) e.currentTarget.style.color = 'rgba(255,255,255,0.22)';
+            }}
             disabled={readOnly}
             aria-label="Toggle note"
           >
-            <StickyNote className="w-4 h-4" />
+            <StickyNote className="w-3.5 h-3.5" />
           </button>
-          
+
           {!readOnly && (
             <button
               type="button"
               onClick={onDelete}
-              className="p-2 rounded-lg text-text-muted hover:text-danger hover:bg-danger/10 transition-colors"
+              className="p-2 rounded-lg transition-all"
+              style={{ color: 'rgba(255,255,255,0.22)' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#F43F5E';
+                e.currentTarget.style.background = 'rgba(244,63,94,0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = 'rgba(255,255,255,0.22)';
+                e.currentTarget.style.background = 'transparent';
+              }}
               aria-label="Delete expense"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-3.5 h-3.5" />
             </button>
           )}
         </div>
       </div>
 
-      {/* Note (collapsible) */}
+      {/* Collapsible note */}
       {showNote && (
-        <div className="mt-2 ml-0 animate-fade-in">
+        <div className="px-2.5 pb-2.5 animate-fade-in">
           <input
             type="text"
             value={expense.note || ''}
             onChange={(e) => onUpdate({ ...expense, note: e.target.value })}
-            placeholder="Add a note (e.g., 10 kg broiler)"
-            className="input-field text-sm py-2 bg-gray-50"
+            placeholder="Add a note (e.g. 10 kg broiler)..."
+            className="w-full py-2 px-3 rounded-lg text-xs focus:outline-none transition-all"
+            style={{
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.07)',
+              color: 'rgba(255,255,255,0.65)',
+              caretColor: '#F59E0B',
+            }}
+            onFocus={(e) => {
+              e.target.style.borderColor = 'rgba(245,158,11,0.3)';
+              e.target.style.boxShadow = '0 0 0 2px rgba(245,158,11,0.08)';
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = 'rgba(255,255,255,0.07)';
+              e.target.style.boxShadow = 'none';
+            }}
             disabled={readOnly}
             aria-label={`Note for ${expense.category || 'expense'}`}
           />

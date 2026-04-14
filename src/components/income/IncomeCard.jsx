@@ -1,16 +1,11 @@
-import { DollarSign, CreditCard, Wallet } from 'lucide-react';
+import { TrendingUp, CreditCard, Wallet } from 'lucide-react';
 import { formatCurrency } from '../../utils/currency';
 
 const IncomeCard = ({ income, onChange, readOnly }) => {
   const handleChange = (field, value) => {
-    // Only allow digits
     const cleaned = value.replace(/[^\d]/g, '');
     const paise = cleaned ? parseInt(cleaned) * 100 : 0;
-    
-    const updated = {
-      ...income,
-      [field]: paise,
-    };
+    const updated = { ...income, [field]: paise };
     updated.total = updated.cash + updated.online;
     onChange(updated);
   };
@@ -21,22 +16,54 @@ const IncomeCard = ({ income, onChange, readOnly }) => {
   };
 
   return (
-    <div className="card border-l-4 border-l-success animate-fade-in">
-      <div className="flex items-center gap-2 mb-4">
-        <div className="w-8 h-8 bg-success/10 rounded-lg flex items-center justify-center">
-          <DollarSign className="w-4.5 h-4.5 text-success" />
+    <div className="glass-card p-5 animate-slide-up">
+      {/* Header row */}
+      <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center gap-3">
+          <div
+            className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0"
+            style={{
+              background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+              boxShadow: '0 4px 14px rgba(16, 185, 129, 0.38)',
+            }}
+          >
+            <TrendingUp className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h2 className="text-sm font-bold text-white">Revenue</h2>
+            <p className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>
+              Today's income
+            </p>
+          </div>
         </div>
-        <h2 className="text-base font-semibold text-text-primary">Income</h2>
+        <div className="text-right">
+          <p className="text-2xl font-bold gradient-text-success currency-display">
+            {formatCurrency(income.total)}
+          </p>
+          <p className="text-[10px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.25)' }}>
+            total
+          </p>
+        </div>
       </div>
 
-      <div className="space-y-3">
-        <div>
-          <label htmlFor="income-cash" className="flex items-center gap-1.5 text-sm text-text-body mb-1.5">
-            <Wallet className="w-3.5 h-3.5" />
-            Cash Received
-          </label>
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted font-medium">₹</span>
+      {/* Two input panels */}
+      <div className="grid grid-cols-2 gap-3">
+        {/* Cash */}
+        <div
+          className="rounded-2xl p-4"
+          style={{
+            background: 'rgba(16, 185, 129, 0.07)',
+            border: '1px solid rgba(16, 185, 129, 0.14)',
+          }}
+        >
+          <div className="flex items-center gap-1.5 mb-3">
+            <Wallet className="w-3.5 h-3.5" style={{ color: 'rgba(52,211,153,0.7)' }} />
+            <span className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'rgba(52,211,153,0.6)' }}>
+              Cash
+            </span>
+          </div>
+          <div className="flex items-baseline gap-1">
+            <span className="text-sm font-medium" style={{ color: 'rgba(255,255,255,0.3)' }}>₹</span>
             <input
               id="income-cash"
               type="text"
@@ -45,20 +72,30 @@ const IncomeCard = ({ income, onChange, readOnly }) => {
               value={displayValue(income.cash)}
               onChange={(e) => handleChange('cash', e.target.value)}
               placeholder="0"
-              className="input-field pl-8 currency-display"
+              className="flex-1 bg-transparent border-none outline-none text-xl font-bold text-white currency-display min-w-0"
+              style={{ caretColor: '#10B981' }}
               disabled={readOnly}
               aria-label="Cash income amount"
             />
           </div>
         </div>
 
-        <div>
-          <label htmlFor="income-online" className="flex items-center gap-1.5 text-sm text-text-body mb-1.5">
-            <CreditCard className="w-3.5 h-3.5" />
-            Online Payments
-          </label>
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted font-medium">₹</span>
+        {/* Online */}
+        <div
+          className="rounded-2xl p-4"
+          style={{
+            background: 'rgba(99, 102, 241, 0.07)',
+            border: '1px solid rgba(99, 102, 241, 0.14)',
+          }}
+        >
+          <div className="flex items-center gap-1.5 mb-3">
+            <CreditCard className="w-3.5 h-3.5" style={{ color: 'rgba(129,140,248,0.7)' }} />
+            <span className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'rgba(129,140,248,0.6)' }}>
+              Online
+            </span>
+          </div>
+          <div className="flex items-baseline gap-1">
+            <span className="text-sm font-medium" style={{ color: 'rgba(255,255,255,0.3)' }}>₹</span>
             <input
               id="income-online"
               type="text"
@@ -67,19 +104,12 @@ const IncomeCard = ({ income, onChange, readOnly }) => {
               value={displayValue(income.online)}
               onChange={(e) => handleChange('online', e.target.value)}
               placeholder="0"
-              className="input-field pl-8 currency-display"
+              className="flex-1 bg-transparent border-none outline-none text-xl font-bold text-white currency-display min-w-0"
+              style={{ caretColor: '#6366F1' }}
               disabled={readOnly}
               aria-label="Online income amount"
             />
           </div>
-        </div>
-
-        {/* Total */}
-        <div className="bg-success/5 rounded-xl p-3 flex items-center justify-between border border-success/10">
-          <span className="text-sm font-medium text-text-body">Total Income</span>
-          <span className="text-lg font-bold text-success currency-display">
-            {formatCurrency(income.total)}
-          </span>
         </div>
       </div>
     </div>

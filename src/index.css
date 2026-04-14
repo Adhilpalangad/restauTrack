@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -8,7 +8,7 @@
   * {
     -webkit-tap-highlight-color: transparent;
   }
-  
+
   html {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -16,81 +16,204 @@
   }
 
   body {
-    @apply bg-bg-primary text-text-body;
+    background-color: #06071A;
+    background-image:
+      radial-gradient(ellipse at 15% 15%, rgba(99, 102, 241, 0.07) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 85%, rgba(139, 92, 246, 0.05) 0%, transparent 55%);
+    background-attachment: fixed;
+    color: #8892B8;
     overscroll-behavior-y: contain;
   }
 
   input[type="text"],
   input[type="email"],
-  input[type="password"] {
+  input[type="password"],
+  input[type="number"] {
     font-variant-numeric: tabular-nums;
   }
 }
 
 @layer components {
+
+  /* ── Glassmorphism surfaces ── */
+  .glass {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
+  .glass-card {
+    background: rgba(255, 255, 255, 0.045);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  }
+
+  .glass-strong {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.13);
+  }
+
+  /* ── Gradient text ── */
+  .gradient-text-primary {
+    background: linear-gradient(135deg, #818CF8 0%, #A78BFA 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gradient-text-success {
+    background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gradient-text-danger {
+    background: linear-gradient(135deg, #F43F5E 0%, #FB7185 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gradient-text-accent {
+    background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ── Buttons ── */
   .btn-primary {
-    @apply bg-primary text-white font-semibold py-3 px-6 rounded-xl 
+    @apply relative font-semibold py-3 px-6 rounded-2xl
            transition-all duration-200 ease-out
-           active:scale-[0.97] hover:bg-primary-light
-           focus:outline-none focus:ring-2 focus:ring-primary-light focus:ring-offset-2
+           active:scale-[0.97]
+           focus:outline-none
            disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100;
-    min-height: 44px;
+    background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+    color: white;
+    box-shadow: 0 4px 18px rgba(99, 102, 241, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    min-height: 48px;
+  }
+  .btn-primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+  .btn-primary:active:not(:disabled) {
+    transform: scale(0.97) translateY(0);
+    box-shadow: 0 2px 12px rgba(99, 102, 241, 0.4);
   }
 
   .btn-accent {
-    @apply bg-accent text-white font-semibold py-3 px-6 rounded-xl 
+    @apply relative font-semibold py-3 px-6 rounded-2xl
            transition-all duration-200 ease-out
-           active:scale-[0.97] hover:brightness-110
-           focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2
+           active:scale-[0.97]
+           focus:outline-none
            disabled:opacity-50 disabled:cursor-not-allowed;
-    min-height: 44px;
+    background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
+    color: #1a1000;
+    box-shadow: 0 4px 18px rgba(245, 158, 11, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    min-height: 48px;
+  }
+  .btn-accent:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 25px rgba(245, 158, 11, 0.5);
   }
 
   .btn-danger {
-    @apply bg-danger text-white font-semibold py-3 px-6 rounded-xl 
+    @apply relative font-semibold py-3 px-6 rounded-2xl
            transition-all duration-200 ease-out
-           active:scale-[0.97] hover:brightness-110
-           focus:outline-none focus:ring-2 focus:ring-danger focus:ring-offset-2;
-    min-height: 44px;
+           active:scale-[0.97]
+           focus:outline-none;
+    background: linear-gradient(135deg, #F43F5E 0%, #FB7185 100%);
+    color: white;
+    box-shadow: 0 4px 18px rgba(244, 63, 94, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    min-height: 48px;
+  }
+  .btn-danger:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 25px rgba(244, 63, 94, 0.5);
   }
 
   .btn-ghost {
-    @apply bg-transparent text-text-body font-medium py-2 px-4 rounded-xl
+    @apply font-medium py-2.5 px-4 rounded-xl
            transition-all duration-200 ease-out
-           active:scale-[0.97] hover:bg-gray-100
-           focus:outline-none focus:ring-2 focus:ring-gray-300;
+           active:scale-[0.97]
+           focus:outline-none;
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     min-height: 44px;
   }
-
-  .card {
-    @apply bg-bg-card rounded-2xl shadow-sm border border-border p-4
-           transition-shadow duration-200
-           hover:shadow-md;
+  .btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.09);
+    color: rgba(255, 255, 255, 0.9);
+    border-color: rgba(255, 255, 255, 0.13);
   }
 
+  /* ── Inputs ── */
   .input-field {
-    @apply w-full px-4 py-3 rounded-xl border border-border bg-white
-           text-text-primary placeholder:text-text-muted
-           transition-all duration-200
-           focus:outline-none focus:ring-2 focus:ring-primary-light focus:border-primary-light;
+    @apply w-full px-4 py-3 rounded-xl transition-all duration-200 focus:outline-none;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.90);
     min-height: 44px;
     font-variant-numeric: tabular-nums;
+    caret-color: #6366F1;
+  }
+  .input-field::placeholder {
+    color: rgba(255, 255, 255, 0.22);
+  }
+  .input-field:focus {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(99, 102, 241, 0.5);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+  }
+  .input-field:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
   }
 
+  /* ── Card (kept for compat, now glass) ── */
+  .card {
+    @apply glass-card p-5;
+  }
+
+  /* ── Skeleton ── */
   .skeleton {
-    @apply bg-gray-200 rounded-lg animate-pulse;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.04) 25%,
+      rgba(255, 255, 255, 0.09) 50%,
+      rgba(255, 255, 255, 0.04) 75%
+    );
+    background-size: 200% auto;
+    animation: shimmer 1.8s linear infinite;
+    border-radius: 12px;
   }
 
+  /* ── Badges ── */
   .badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold;
   }
 
   .badge-draft {
-    @apply badge bg-amber-100 text-amber-800;
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold;
+    background: rgba(245, 158, 11, 0.12);
+    color: #FBBF24;
+    border: 1px solid rgba(245, 158, 11, 0.22);
   }
 
   .badge-submitted {
-    @apply badge bg-green-100 text-green-800;
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold;
+    background: rgba(16, 185, 129, 0.12);
+    color: #34D399;
+    border: 1px solid rgba(16, 185, 129, 0.22);
   }
 }
 
@@ -110,5 +233,16 @@
   }
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+
+  .scrollbar-glass::-webkit-scrollbar {
+    width: 3px;
+  }
+  .scrollbar-glass::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-glass::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
   }
 }
