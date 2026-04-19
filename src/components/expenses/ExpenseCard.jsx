@@ -43,8 +43,8 @@ const ExpenseCard = ({ expenses, onChange, searchCategories, readOnly, onCopyFro
             <TrendingDown className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-white">Expenses</h2>
-            <p className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>
+            <h2 className="text-sm font-bold" style={{ color: 'var(--text)' }}>Expenses</h2>
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
               {expenses.length} {expenses.length === 1 ? 'item' : 'items'}
             </p>
           </div>
@@ -62,9 +62,9 @@ const ExpenseCard = ({ expenses, onChange, searchCategories, readOnly, onCopyFro
               onClick={onCopyFromYesterday}
               className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all"
               style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                color: 'rgba(255,255,255,0.4)',
+                background: 'var(--copy-btn-bg)',
+                border: '1px solid var(--copy-btn-border)',
+                color: 'var(--copy-btn-color)',
               }}
             >
               <Copy className="w-3.5 h-3.5" />
@@ -96,9 +96,9 @@ const ExpenseCard = ({ expenses, onChange, searchCategories, readOnly, onCopyFro
           onClick={addExpense}
           className="w-full mt-4 py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.98]"
           style={{
-            background: 'rgba(99, 102, 241, 0.08)',
-            border: '1.5px dashed rgba(99, 102, 241, 0.28)',
-            color: 'rgba(129, 140, 248, 0.75)',
+            background: 'var(--add-expense-bg)',
+            border: '1.5px dashed var(--add-expense-border)',
+            color: 'var(--add-expense-color)',
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.background = 'rgba(99, 102, 241, 0.13)';
@@ -106,9 +106,9 @@ const ExpenseCard = ({ expenses, onChange, searchCategories, readOnly, onCopyFro
             e.currentTarget.style.color = '#818CF8';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'rgba(99, 102, 241, 0.08)';
-            e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.28)';
-            e.currentTarget.style.color = 'rgba(129, 140, 248, 0.75)';
+            e.currentTarget.style.background = 'var(--add-expense-bg)';
+            e.currentTarget.style.borderColor = 'var(--add-expense-border)';
+            e.currentTarget.style.color = 'var(--add-expense-color)';
           }}
         >
           <Plus className="w-4 h-4" />

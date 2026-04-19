@@ -62,13 +62,13 @@ const CategoryAutocomplete = ({ value, onChange, onSearch, disabled }) => {
         placeholder="Category"
         className="w-full py-2.5 px-3 rounded-lg text-sm font-medium focus:outline-none transition-all"
         style={{
-          background: 'rgba(255, 255, 255, 0.05)',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
-          color: 'rgba(255, 255, 255, 0.88)',
+          background: 'var(--category-input-bg)',
+          border: '1px solid var(--category-input-border)',
+          color: 'var(--text)',
           caretColor: '#6366F1',
         }}
         onBlur={(e) => {
-          e.target.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+          e.target.style.borderColor = 'var(--category-input-border)';
           e.target.style.boxShadow = 'none';
         }}
         disabled={disabled}
@@ -81,11 +81,11 @@ const CategoryAutocomplete = ({ value, onChange, onSearch, disabled }) => {
           ref={dropdownRef}
           className="absolute top-full left-0 right-0 mt-1.5 rounded-xl z-50 max-h-40 overflow-y-auto scrollbar-glass animate-scale-in"
           style={{
-            background: 'rgba(13, 15, 39, 0.97)',
+            background: 'var(--category-dropdown-bg)',
             backdropFilter: 'blur(28px)',
             WebkitBackdropFilter: 'blur(28px)',
-            border: '1px solid rgba(255, 255, 255, 0.12)',
-            boxShadow: '0 16px 48px rgba(0,0,0,0.7)',
+            border: '1px solid var(--category-dropdown-border)',
+            boxShadow: 'var(--category-dropdown-shadow)',
           }}
         >
           {filteredSuggestions.map((s, i) => (
@@ -94,20 +94,20 @@ const CategoryAutocomplete = ({ value, onChange, onSearch, disabled }) => {
               type="button"
               onClick={() => handleSelect(s)}
               className="w-full text-left px-3 py-2.5 text-sm flex items-center justify-between transition-all first:rounded-t-xl last:rounded-b-xl"
-              style={{ color: 'rgba(255, 255, 255, 0.75)' }}
+              style={{ color: 'var(--category-item-color)' }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(99, 102, 241, 0.15)';
-                e.currentTarget.style.color = 'white';
+                e.currentTarget.style.background = 'var(--category-item-hover-bg)';
+                e.currentTarget.style.color = 'var(--text)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.background = 'transparent';
-                e.currentTarget.style.color = 'rgba(255, 255, 255, 0.75)';
+                e.currentTarget.style.color = 'var(--category-item-color)';
               }}
             >
               <span>{s.name}</span>
               <span
                 className="text-xs ml-2 flex-shrink-0"
-                style={{ color: 'rgba(255,255,255,0.28)' }}
+                style={{ color: 'var(--category-count-color)' }}
               >
                 {s.usageCount}×
               </span>

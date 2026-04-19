@@ -18,11 +18,11 @@ const BottomNav = () => {
       <div
         className="flex items-center gap-1 px-2 py-2 rounded-[28px]"
         style={{
-          background: 'rgba(13, 15, 39, 0.94)',
+          background: 'var(--nav-bg)',
           backdropFilter: 'blur(28px)',
           WebkitBackdropFilter: 'blur(28px)',
-          border: '1px solid rgba(255, 255, 255, 0.10)',
-          boxShadow: '0 20px 60px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.08)',
+          border: '1px solid var(--nav-border)',
+          boxShadow: 'var(--nav-shadow)',
         }}
       >
         {navItems.map(({ to, icon: Icon, label }) => (
@@ -37,7 +37,7 @@ const BottomNav = () => {
                         boxShadow: '0 4px 18px rgba(99, 102, 241, 0.45)',
                         color: 'white',
                       }
-                    : { color: 'rgba(255, 255, 255, 0.28)' }
+                    : { color: 'var(--nav-inactive)' }
                 }
               >
                 <Icon

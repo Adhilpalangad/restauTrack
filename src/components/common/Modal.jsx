@@ -20,11 +20,11 @@ const Modal = ({ isOpen, onClose, title, children, actions }) => {
       <div
         className="relative w-full max-w-sm animate-scale-in overflow-hidden rounded-2xl"
         style={{
-          background: 'rgba(13, 15, 39, 0.97)',
+          background: 'var(--modal-bg)',
           backdropFilter: 'blur(28px)',
           WebkitBackdropFilter: 'blur(28px)',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
-          boxShadow: '0 32px 80px rgba(0,0,0,0.75), inset 0 1px 0 rgba(255,255,255,0.08)',
+          border: '1px solid var(--modal-border)',
+          boxShadow: 'var(--modal-shadow)',
         }}
       >
         {/* Top gradient accent */}
@@ -37,21 +37,21 @@ const Modal = ({ isOpen, onClose, title, children, actions }) => {
 
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-5 pb-3">
-          <h3 className="text-base font-bold text-white">{title}</h3>
+          <h3 className="text-base font-bold" style={{ color: 'var(--text)' }}>{title}</h3>
           <button
             onClick={onClose}
             className="p-1.5 rounded-lg transition-all"
             style={{
-              background: 'rgba(255,255,255,0.06)',
-              color: 'rgba(255,255,255,0.35)',
+              background: 'var(--close-btn-bg)',
+              color: 'var(--close-btn-color)',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(255,255,255,0.11)';
-              e.currentTarget.style.color = 'rgba(255,255,255,0.75)';
+              e.currentTarget.style.background = 'var(--close-btn-bg-hover)';
+              e.currentTarget.style.color = 'var(--close-btn-color-hover)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
-              e.currentTarget.style.color = 'rgba(255,255,255,0.35)';
+              e.currentTarget.style.background = 'var(--close-btn-bg)';
+              e.currentTarget.style.color = 'var(--close-btn-color)';
             }}
             aria-label="Close modal"
           >
@@ -60,7 +60,7 @@ const Modal = ({ isOpen, onClose, title, children, actions }) => {
         </div>
 
         {/* Content */}
-        <div className="px-5 pb-4" style={{ color: 'rgba(255,255,255,0.55)' }}>
+        <div className="px-5 pb-4" style={{ color: 'var(--text-secondary)' }}>
           {children}
         </div>
 

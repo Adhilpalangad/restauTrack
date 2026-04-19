@@ -26,7 +26,6 @@ const SalaryPage = () => {
   const { user } = useAuth();
   const today = getToday();
 
-  // ── Form state ────────────────────────────────────────────────────────────
   const [name, setName] = useState('');
   const [amount, setAmount] = useState('');
   const [date, setDate] = useState(today);
@@ -34,25 +33,20 @@ const SalaryPage = () => {
   const [adding, setAdding] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
 
-  // ── Employee autocomplete ─────────────────────────────────────────────────
   const [employees, setEmployees] = useState([]);
   const [isNew, setIsNew] = useState(false);
 
-  // ── Entries ───────────────────────────────────────────────────────────────
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ── Filter state ──────────────────────────────────────────────────────────
   const [filterName, setFilterName] = useState('');
   const [preset, setPreset] = useState('thisMonth');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [showCustom, setShowCustom] = useState(false);
 
-  // ── Delete modal ──────────────────────────────────────────────────────────
   const [deleteTarget, setDeleteTarget] = useState(null);
 
-  // ─────────────────────────────────────────────────────────────────────────
   const loadEmployees = useCallback(async () => {
     if (!user) return;
     try {
@@ -84,7 +78,6 @@ const SalaryPage = () => {
     loadEntries(range.start, range.end);
   }, [user]);
 
-  // ── Name autocomplete helpers ─────────────────────────────────────────────
   const filteredEmps = employees.filter(
     (e) => name.length > 0 && e.name.toLowerCase().includes(name.toLowerCase())
   );
@@ -101,7 +94,6 @@ const SalaryPage = () => {
     setShowDropdown(false);
   };
 
-  // ── Add salary ────────────────────────────────────────────────────────────
   const handleAdd = async () => {
     if (!name.trim()) { toast.error('Enter employee name'); return; }
     const paise = parseInt(amount) * 100;
@@ -116,7 +108,6 @@ const SalaryPage = () => {
         remarks: remarks.trim(),
       });
 
-      // Only add to visible list if it falls in current date range
       if (entry.date >= startDate && entry.date <= endDate) {
         setEntries((prev) =>
           [entry, ...prev].sort((a, b) => b.date.localeCompare(a.date))
@@ -137,7 +128,6 @@ const SalaryPage = () => {
     }
   };
 
-  // ── Preset / date filter ──────────────────────────────────────────────────
   const handlePresetChange = (key) => {
     setPreset(key);
     setShowCustom(key === 'custom');
@@ -155,7 +145,6 @@ const SalaryPage = () => {
     loadEntries(startDate, endDate);
   };
 
-  // ── Delete ────────────────────────────────────────────────────────────────
   const handleDelete = async () => {
     if (!deleteTarget) return;
     try {
@@ -168,12 +157,10 @@ const SalaryPage = () => {
     }
   };
 
-  // ── Derived display data ──────────────────────────────────────────────────
   const displayed = filterName ? entries.filter((e) => e.name === filterName) : entries;
   const total = displayed.reduce((sum, e) => sum + (e.amount || 0), 0);
   const uniqueNames = [...new Set(entries.map((e) => e.name))].sort();
 
-  // ─────────────────────────────────────────────────────────────────────────
   return (
     <div className="p-4 space-y-4 pb-36">
 
@@ -190,8 +177,8 @@ const SalaryPage = () => {
             <Banknote className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-white">Add Salary</h2>
-            <p className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>Staff payment entry</p>
+            <h2 className="text-sm font-bold" style={{ color: 'var(--text)' }}>Add Salary</h2>
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Staff payment entry</p>
           </div>
         </div>
 
@@ -200,7 +187,7 @@ const SalaryPage = () => {
           <div>
             <label
               className="block text-[11px] font-bold uppercase tracking-wider mb-1.5"
-              style={{ color: 'rgba(255,255,255,0.35)' }}
+              style={{ color: 'var(--text-muted)' }}
             >
               Employee Name
             </label>
@@ -218,23 +205,21 @@ const SalaryPage = () => {
                 autoComplete="off"
               />
 
-              {/* New employee indicator */}
               {isNew && (
                 <p className="text-[11px] mt-1.5" style={{ color: 'rgba(245,158,11,0.85)' }}>
                   New employee — will be saved automatically
                 </p>
               )}
 
-              {/* Autocomplete dropdown */}
               {showDropdown && filteredEmps.length > 0 && (
                 <div
                   className="absolute top-full left-0 right-0 mt-1.5 rounded-xl z-50 max-h-44 overflow-y-auto scrollbar-glass animate-scale-in"
                   style={{
-                    background: 'rgba(13,15,39,0.97)',
+                    background: 'var(--category-dropdown-bg)',
                     backdropFilter: 'blur(24px)',
                     WebkitBackdropFilter: 'blur(24px)',
-                    border: '1px solid rgba(255,255,255,0.12)',
-                    boxShadow: '0 16px 48px rgba(0,0,0,0.7)',
+                    border: '1px solid var(--category-dropdown-border)',
+                    boxShadow: 'var(--category-dropdown-shadow)',
                   }}
                 >
                   {filteredEmps.map((emp) => (
@@ -243,18 +228,18 @@ const SalaryPage = () => {
                       type="button"
                       onMouseDown={() => selectEmployee(emp.name)}
                       className="w-full text-left px-4 py-2.5 text-sm flex items-center justify-between transition-all first:rounded-t-xl last:rounded-b-xl"
-                      style={{ color: 'rgba(255,255,255,0.75)' }}
+                      style={{ color: 'var(--category-item-color)' }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.background = 'rgba(245,158,11,0.12)';
-                        e.currentTarget.style.color = 'white';
+                        e.currentTarget.style.color = 'var(--text)';
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.background = 'transparent';
-                        e.currentTarget.style.color = 'rgba(255,255,255,0.75)';
+                        e.currentTarget.style.color = 'var(--category-item-color)';
                       }}
                     >
                       <span>{emp.name}</span>
-                      <span className="text-xs ml-2 flex-shrink-0" style={{ color: 'rgba(255,255,255,0.3)' }}>
+                      <span className="text-xs ml-2 flex-shrink-0" style={{ color: 'var(--category-count-color)' }}>
                         {emp.usageCount}×
                       </span>
                     </button>
@@ -269,14 +254,14 @@ const SalaryPage = () => {
             <div>
               <label
                 className="block text-[11px] font-bold uppercase tracking-wider mb-1.5"
-                style={{ color: 'rgba(255,255,255,0.35)' }}
+                style={{ color: 'var(--text-muted)' }}
               >
                 Amount
               </label>
               <div className="relative">
                 <span
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium pointer-events-none"
-                  style={{ color: 'rgba(255,255,255,0.28)' }}
+                  style={{ color: 'var(--text-muted)' }}
                 >
                   ₹
                 </span>
@@ -295,7 +280,7 @@ const SalaryPage = () => {
             <div>
               <label
                 className="block text-[11px] font-bold uppercase tracking-wider mb-1.5"
-                style={{ color: 'rgba(255,255,255,0.35)' }}
+                style={{ color: 'var(--text-muted)' }}
               >
                 Date
               </label>
@@ -313,9 +298,9 @@ const SalaryPage = () => {
           <div>
             <label
               className="block text-[11px] font-bold uppercase tracking-wider mb-1.5"
-              style={{ color: 'rgba(255,255,255,0.35)' }}
+              style={{ color: 'var(--text-muted)' }}
             >
-              Remarks <span style={{ color: 'rgba(255,255,255,0.2)' }}>(optional)</span>
+              Remarks <span style={{ color: 'var(--text-faint)' }}>(optional)</span>
             </label>
             <input
               type="text"
@@ -346,8 +331,8 @@ const SalaryPage = () => {
       {/* ── Filter section ──────────────────────────────────────────────── */}
       <div className="glass-card p-4 animate-slide-up" style={{ animationDelay: '60ms' }}>
         <div className="flex items-center gap-2 mb-3">
-          <Filter className="w-4 h-4" style={{ color: 'rgba(129,140,248,0.7)' }} />
-          <span className="text-sm font-bold text-white">Filter Records</span>
+          <Filter className="w-4 h-4" style={{ color: 'rgba(129,140,248,0.8)' }} />
+          <span className="text-sm font-bold" style={{ color: 'var(--text)' }}>Filter Records</span>
         </div>
 
         {/* Date preset pills */}
@@ -360,7 +345,7 @@ const SalaryPage = () => {
               style={
                 preset === p.key
                   ? { background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', color: 'white', boxShadow: '0 2px 10px rgba(99,102,241,0.35)' }
-                  : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.42)' }
+                  : { background: 'var(--hotel-tab-inactive-bg)', border: '1px solid var(--hotel-tab-inactive-border)', color: 'var(--hotel-tab-inactive-color)' }
               }
             >
               {p.label}
@@ -398,18 +383,18 @@ const SalaryPage = () => {
               value={filterName}
               onChange={(e) => setFilterName(e.target.value)}
               className="input-field appearance-none pr-9 cursor-pointer"
-              style={{ color: filterName ? 'white' : 'rgba(255,255,255,0.38)' }}
+              style={{ color: filterName ? 'var(--text)' : 'var(--text-muted)' }}
             >
               <option value="">All Employees</option>
               {uniqueNames.map((n) => (
-                <option key={n} value={n} style={{ background: '#0D0F27', color: 'white' }}>
+                <option key={n} value={n}>
                   {n}
                 </option>
               ))}
             </select>
             <ChevronDown
               className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
-              style={{ color: 'rgba(255,255,255,0.35)' }}
+              style={{ color: 'var(--text-muted)' }}
             />
           </div>
         )}
@@ -425,10 +410,10 @@ const SalaryPage = () => {
           }}
         >
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-widest mb-0.5" style={{ color: 'rgba(255,255,255,0.3)' }}>
-              {filterName ? `Total paid to` : 'Total paid'}
+            <p className="text-[10px] font-bold uppercase tracking-widest mb-0.5" style={{ color: 'var(--text-muted)' }}>
+              {filterName ? 'Total paid to' : 'Total paid'}
             </p>
-            {filterName && <p className="text-xs font-bold text-white">{filterName}</p>}
+            {filterName && <p className="text-xs font-bold" style={{ color: 'var(--text)' }}>{filterName}</p>}
           </div>
           <p className="text-2xl font-bold gradient-text-accent currency-display">
             {formatCurrency(total)}
@@ -449,10 +434,10 @@ const SalaryPage = () => {
             className="w-16 h-16 rounded-3xl flex items-center justify-center mb-4"
             style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.14)' }}
           >
-            <Users className="w-8 h-8" style={{ color: 'rgba(245,158,11,0.4)' }} />
+            <Users className="w-8 h-8" style={{ color: 'rgba(245,158,11,0.5)' }} />
           </div>
-          <p className="text-sm font-semibold text-white mb-1">No salary entries</p>
-          <p className="text-xs text-center max-w-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>
+          <p className="text-sm font-semibold mb-1" style={{ color: 'var(--text)' }}>No salary entries</p>
+          <p className="text-xs text-center max-w-xs" style={{ color: 'var(--text-muted)' }}>
             {filterName ? `No payments found for ${filterName} in this period` : 'No salary records for this period'}
           </p>
         </div>
@@ -464,8 +449,8 @@ const SalaryPage = () => {
               className="rounded-xl flex items-center gap-3 p-3.5 animate-slide-in"
               style={{
                 animationDelay: `${i * 30}ms`,
-                background: 'rgba(255,255,255,0.035)',
-                border: '1px solid rgba(255,255,255,0.07)',
+                background: 'var(--row-bg)',
+                border: '1px solid var(--row-border)',
               }}
             >
               {/* Initial avatar */}
@@ -478,8 +463,8 @@ const SalaryPage = () => {
 
               {/* Info */}
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-white truncate">{entry.name}</p>
-                <p className="text-xs truncate" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                <p className="text-sm font-bold truncate" style={{ color: 'var(--text)' }}>{entry.name}</p>
+                <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>
                   {formatDisplayDate(entry.date)}
                   {entry.remarks ? ` · ${entry.remarks}` : ''}
                 </p>
@@ -494,13 +479,13 @@ const SalaryPage = () => {
               <button
                 onClick={() => setDeleteTarget(entry)}
                 className="p-2 rounded-lg flex-shrink-0 transition-all"
-                style={{ color: 'rgba(255,255,255,0.2)' }}
+                style={{ color: 'var(--text-faint)' }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.color = '#F43F5E';
                   e.currentTarget.style.background = 'rgba(244,63,94,0.1)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.color = 'rgba(255,255,255,0.2)';
+                  e.currentTarget.style.color = 'var(--text-faint)';
                   e.currentTarget.style.background = 'transparent';
                 }}
                 aria-label={`Delete salary entry for ${entry.name}`}
@@ -526,8 +511,8 @@ const SalaryPage = () => {
       >
         <p className="text-sm">
           Delete salary of{' '}
-          <span className="text-white font-bold">{deleteTarget ? formatCurrency(deleteTarget.amount) : ''}</span>{' '}
-          for <span className="text-white font-bold">{deleteTarget?.name}</span>
+          <span className="font-bold" style={{ color: 'var(--text)' }}>{deleteTarget ? formatCurrency(deleteTarget.amount) : ''}</span>{' '}
+          for <span className="font-bold" style={{ color: 'var(--text)' }}>{deleteTarget?.name}</span>
           {deleteTarget?.remarks ? ` (${deleteTarget.remarks})` : ''}?
         </p>
       </Modal>

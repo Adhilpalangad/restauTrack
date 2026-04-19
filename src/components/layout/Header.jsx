@@ -1,10 +1,12 @@
-import { UtensilsCrossed } from 'lucide-react';
+import { UtensilsCrossed, Sun, Moon } from 'lucide-react';
 import OfflineIndicator from './OfflineIndicator';
 import InstallPWA from '../common/InstallPWA';
 import { useHotel, HOTELS } from '../../context/HotelContext';
+import { useTheme } from '../../context/ThemeContext';
 
 const Header = ({ title, rightContent }) => {
   const { selectedHotel, setSelectedHotel } = useHotel();
+  const { isDark, toggle } = useTheme();
 
   const getTabStyle = (h) => {
     const isSalary = h === 'SALARY';
@@ -32,9 +34,9 @@ const Header = ({ title, rightContent }) => {
       };
     }
     return {
-      background: 'rgba(255,255,255,0.05)',
-      border: '1px solid rgba(255,255,255,0.08)',
-      color: 'rgba(255,255,255,0.38)',
+      background: 'var(--hotel-tab-inactive-bg)',
+      border: '1px solid var(--hotel-tab-inactive-border)',
+      color: 'var(--hotel-tab-inactive-color)',
     };
   };
 
@@ -44,10 +46,10 @@ const Header = ({ title, rightContent }) => {
       <header
         className="sticky top-0 z-40 px-4 pt-3 pb-0"
         style={{
-          background: 'rgba(6,7,26,0.88)',
+          background: 'var(--header-bg)',
           backdropFilter: 'blur(28px)',
           WebkitBackdropFilter: 'blur(28px)',
-          borderBottom: '1px solid rgba(255,255,255,0.05)',
+          borderBottom: '1px solid var(--header-border)',
         }}
       >
         <div className="flex items-center justify-between max-w-lg mx-auto">
@@ -63,10 +65,10 @@ const Header = ({ title, rightContent }) => {
               <UtensilsCrossed className="w-[18px] h-[18px] text-white" />
             </div>
             <div>
-              <h1 className="text-sm font-bold text-white tracking-tight leading-tight">
+              <h1 className="text-sm font-bold tracking-tight leading-tight" style={{ color: 'var(--text)' }}>
                 {title || 'RestauTrack'}
               </h1>
-              <p className="text-[10px] leading-none" style={{ color: 'rgba(255,255,255,0.28)' }}>
+              <p className="text-[10px] leading-none" style={{ color: 'var(--text-muted)' }}>
                 Restaurant Manager
               </p>
             </div>
@@ -74,6 +76,18 @@ const Header = ({ title, rightContent }) => {
 
           {/* Right slot */}
           <div className="flex items-center gap-2">
+            <button
+              onClick={toggle}
+              className="w-8 h-8 rounded-xl flex items-center justify-center transition-all"
+              style={{
+                background: 'var(--btn-ghost-bg)',
+                border: '1px solid var(--btn-ghost-border)',
+                color: 'var(--text-muted)',
+              }}
+              aria-label="Toggle theme"
+            >
+              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
             <InstallPWA />
             {rightContent}
           </div>

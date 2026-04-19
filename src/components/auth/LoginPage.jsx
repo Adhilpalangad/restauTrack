@@ -43,7 +43,7 @@ const LoginPage = () => {
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center px-6 relative overflow-hidden"
-      style={{ background: '#06071A' }}
+      style={{ background: 'var(--login-bg)' }}
     >
       {/* Background orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -80,8 +80,8 @@ const LoginPage = () => {
           >
             <UtensilsCrossed className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">RestauTrack</h1>
-          <p className="text-sm" style={{ color: 'rgba(255,255,255,0.30)' }}>
+          <h1 className="text-3xl font-bold mb-2 tracking-tight" style={{ color: 'var(--text)' }}>RestauTrack</h1>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
             Smart Restaurant Finance Manager
           </p>
         </div>
@@ -90,11 +90,11 @@ const LoginPage = () => {
         <div
           className="rounded-2xl p-6 animate-slide-up"
           style={{
-            background: 'rgba(13, 15, 39, 0.82)',
+            background: 'var(--login-card-bg)',
             backdropFilter: 'blur(28px)',
             WebkitBackdropFilter: 'blur(28px)',
-            border: '1px solid rgba(255, 255, 255, 0.10)',
-            boxShadow: '0 32px 80px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.07)',
+            border: '1px solid var(--login-card-border)',
+            boxShadow: 'var(--login-card-shadow)',
           }}
         >
           {/* Top accent line */}
@@ -105,20 +105,20 @@ const LoginPage = () => {
             }}
           />
 
-          <h2 className="text-lg font-bold text-white mb-6 text-center">Sign In</h2>
+          <h2 className="text-lg font-bold mb-6 text-center" style={{ color: 'var(--text)' }}>Sign In</h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label
                 className="block text-[11px] font-bold uppercase tracking-wider mb-2"
-                style={{ color: 'rgba(255,255,255,0.35)' }}
+                style={{ color: 'var(--login-label-color)' }}
               >
                 Email
               </label>
               <div className="relative">
                 <Mail
                   className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
-                  style={{ color: 'rgba(255,255,255,0.22)' }}
+                  style={{ color: 'var(--login-icon-color)' }}
                 />
                 <input
                   type="email"
@@ -135,14 +135,14 @@ const LoginPage = () => {
             <div>
               <label
                 className="block text-[11px] font-bold uppercase tracking-wider mb-2"
-                style={{ color: 'rgba(255,255,255,0.35)' }}
+                style={{ color: 'var(--login-label-color)' }}
               >
                 Password
               </label>
               <div className="relative">
                 <Lock
                   className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
-                  style={{ color: 'rgba(255,255,255,0.22)' }}
+                  style={{ color: 'var(--login-icon-color)' }}
                 />
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -157,9 +157,9 @@ const LoginPage = () => {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3.5 top-1/2 -translate-y-1/2 transition-colors"
-                  style={{ color: 'rgba(255,255,255,0.22)' }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.6)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.22)')}
+                  style={{ color: 'var(--login-icon-color)' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--login-icon-color)')}
                   tabIndex={-1}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
@@ -185,7 +185,7 @@ const LoginPage = () => {
           </form>
         </div>
 
-        <p className="text-center text-xs mt-6" style={{ color: 'rgba(255,255,255,0.18)' }}>
+        <p className="text-center text-xs mt-6" style={{ color: 'var(--login-footer-color)' }}>
           Secure login · End-to-end encrypted
         </p>
       </div>

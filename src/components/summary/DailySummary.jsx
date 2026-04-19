@@ -9,11 +9,11 @@ const DailySummary = ({ income, totalExpense, netProfit }) => {
       <div
         className="max-w-lg mx-auto rounded-2xl p-4"
         style={{
-          background: 'rgba(13, 15, 39, 0.93)',
+          background: 'var(--summary-bg)',
           backdropFilter: 'blur(28px)',
           WebkitBackdropFilter: 'blur(28px)',
-          border: '1px solid rgba(255, 255, 255, 0.09)',
-          boxShadow: '0 20px 60px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.07)',
+          border: '1px solid var(--summary-border)',
+          boxShadow: 'var(--summary-shadow)',
         }}
       >
         {/* Top accent strip */}
@@ -31,7 +31,7 @@ const DailySummary = ({ income, totalExpense, netProfit }) => {
               <TrendingUp className="w-3 h-3" style={{ color: 'rgba(52,211,153,0.6)' }} />
               <span
                 className="text-[9px] font-bold uppercase tracking-widest"
-                style={{ color: 'rgba(255,255,255,0.28)' }}
+                style={{ color: 'var(--text-muted)' }}
               >
                 Income
               </span>
@@ -44,13 +44,13 @@ const DailySummary = ({ income, totalExpense, netProfit }) => {
           {/* Expense */}
           <div
             className="text-center border-x"
-            style={{ borderColor: 'rgba(255,255,255,0.07)' }}
+            style={{ borderColor: 'var(--summary-divider)' }}
           >
             <div className="flex items-center justify-center gap-1 mb-1">
               <TrendingDown className="w-3 h-3" style={{ color: 'rgba(251,113,133,0.6)' }} />
               <span
                 className="text-[9px] font-bold uppercase tracking-widest"
-                style={{ color: 'rgba(255,255,255,0.28)' }}
+                style={{ color: 'var(--text-muted)' }}
               >
                 Expense
               </span>
@@ -63,10 +63,10 @@ const DailySummary = ({ income, totalExpense, netProfit }) => {
           {/* Profit */}
           <div className="text-center">
             <div className="flex items-center justify-center gap-1 mb-1">
-              <Minus className="w-3 h-3" style={{ color: 'rgba(255,255,255,0.28)' }} />
+              <Minus className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
               <span
                 className="text-[9px] font-bold uppercase tracking-widest"
-                style={{ color: 'rgba(255,255,255,0.28)' }}
+                style={{ color: 'var(--text-muted)' }}
               >
                 Profit
               </span>

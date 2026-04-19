@@ -30,8 +30,8 @@ const IncomeCard = ({ income, onChange, readOnly }) => {
             <TrendingUp className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-white">Revenue</h2>
-            <p className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>
+            <h2 className="text-sm font-bold" style={{ color: 'var(--text)' }}>Revenue</h2>
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
               Today's income
             </p>
           </div>
@@ -40,7 +40,7 @@ const IncomeCard = ({ income, onChange, readOnly }) => {
           <p className="text-2xl font-bold gradient-text-success currency-display">
             {formatCurrency(income.total)}
           </p>
-          <p className="text-[10px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.25)' }}>
+          <p className="text-[10px] uppercase tracking-widest" style={{ color: 'var(--text-faint)' }}>
             total
           </p>
         </div>
@@ -52,8 +52,8 @@ const IncomeCard = ({ income, onChange, readOnly }) => {
         <div
           className="rounded-2xl p-4"
           style={{
-            background: 'rgba(16, 185, 129, 0.07)',
-            border: '1px solid rgba(16, 185, 129, 0.14)',
+            background: 'var(--income-cash-bg)',
+            border: '1px solid var(--income-cash-border)',
           }}
         >
           <div className="flex items-center gap-1.5 mb-3">
@@ -63,7 +63,7 @@ const IncomeCard = ({ income, onChange, readOnly }) => {
             </span>
           </div>
           <div className="flex items-baseline gap-1">
-            <span className="text-sm font-medium" style={{ color: 'rgba(255,255,255,0.3)' }}>₹</span>
+            <span className="text-sm font-medium" style={{ color: 'var(--text-muted)' }}>₹</span>
             <input
               id="income-cash"
               type="text"
@@ -72,8 +72,8 @@ const IncomeCard = ({ income, onChange, readOnly }) => {
               value={displayValue(income.cash)}
               onChange={(e) => handleChange('cash', e.target.value)}
               placeholder="0"
-              className="flex-1 bg-transparent border-none outline-none text-xl font-bold text-white currency-display min-w-0"
-              style={{ caretColor: '#10B981' }}
+              className="flex-1 bg-transparent border-none outline-none text-xl font-bold currency-display min-w-0"
+              style={{ caretColor: '#10B981', color: 'var(--text)' }}
               disabled={readOnly}
               aria-label="Cash income amount"
             />
@@ -84,8 +84,8 @@ const IncomeCard = ({ income, onChange, readOnly }) => {
         <div
           className="rounded-2xl p-4"
           style={{
-            background: 'rgba(99, 102, 241, 0.07)',
-            border: '1px solid rgba(99, 102, 241, 0.14)',
+            background: 'var(--income-online-bg)',
+            border: '1px solid var(--income-online-border)',
           }}
         >
           <div className="flex items-center gap-1.5 mb-3">
@@ -95,7 +95,7 @@ const IncomeCard = ({ income, onChange, readOnly }) => {
             </span>
           </div>
           <div className="flex items-baseline gap-1">
-            <span className="text-sm font-medium" style={{ color: 'rgba(255,255,255,0.3)' }}>₹</span>
+            <span className="text-sm font-medium" style={{ color: 'var(--text-muted)' }}>₹</span>
             <input
               id="income-online"
               type="text"
@@ -104,8 +104,8 @@ const IncomeCard = ({ income, onChange, readOnly }) => {
               value={displayValue(income.online)}
               onChange={(e) => handleChange('online', e.target.value)}
               placeholder="0"
-              className="flex-1 bg-transparent border-none outline-none text-xl font-bold text-white currency-display min-w-0"
-              style={{ caretColor: '#6366F1' }}
+              className="flex-1 bg-transparent border-none outline-none text-xl font-bold currency-display min-w-0"
+              style={{ caretColor: '#6366F1', color: 'var(--text)' }}
               disabled={readOnly}
               aria-label="Online income amount"
             />

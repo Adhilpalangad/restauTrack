@@ -21,15 +21,15 @@ const ExpenseRow = ({ expense, onUpdate, onDelete, searchCategories, readOnly, i
       className="rounded-xl animate-slide-in"
       style={{
         animationDelay: `${index * 40}ms`,
-        background: 'rgba(255, 255, 255, 0.03)',
-        border: '1px solid rgba(255, 255, 255, 0.06)',
+        background: 'var(--row-bg)',
+        border: '1px solid var(--row-border)',
       }}
     >
       <div className="flex items-center gap-2 p-2.5">
         {/* Index badge */}
         <div
           className="w-6 h-6 rounded-lg flex-shrink-0 flex items-center justify-center text-[11px] font-bold"
-          style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.28)' }}
+          style={{ background: 'var(--idx-badge-bg)', color: 'var(--idx-badge-color)' }}
         >
           {index + 1}
         </div>
@@ -46,7 +46,7 @@ const ExpenseRow = ({ expense, onUpdate, onDelete, searchCategories, readOnly, i
         <div className="relative w-28 flex-shrink-0">
           <span
             className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium pointer-events-none"
-            style={{ color: 'rgba(255,255,255,0.28)' }}
+            style={{ color: 'var(--text-muted)' }}
           >
             ₹
           </span>
@@ -57,10 +57,11 @@ const ExpenseRow = ({ expense, onUpdate, onDelete, searchCategories, readOnly, i
             value={displayAmount(expense.amount)}
             onChange={(e) => handleAmountChange(e.target.value)}
             placeholder="0"
-            className="w-full py-2.5 pl-8 pr-3 rounded-lg text-sm font-bold text-white currency-display focus:outline-none transition-all"
+            className="w-full py-2.5 pl-8 pr-3 rounded-lg text-sm font-bold currency-display focus:outline-none transition-all"
             style={{
-              background: 'rgba(244, 63, 94, 0.08)',
-              border: '1px solid rgba(244, 63, 94, 0.16)',
+              background: 'var(--amount-bg)',
+              border: '1px solid var(--amount-border)',
+              color: 'var(--text)',
               caretColor: '#F43F5E',
             }}
             onFocus={(e) => {
@@ -68,7 +69,7 @@ const ExpenseRow = ({ expense, onUpdate, onDelete, searchCategories, readOnly, i
               e.target.style.boxShadow = '0 0 0 3px rgba(244, 63, 94, 0.1)';
             }}
             onBlur={(e) => {
-              e.target.style.borderColor = 'rgba(244, 63, 94, 0.16)';
+              e.target.style.borderColor = 'var(--amount-border)';
               e.target.style.boxShadow = 'none';
             }}
             disabled={readOnly}
@@ -85,13 +86,13 @@ const ExpenseRow = ({ expense, onUpdate, onDelete, searchCategories, readOnly, i
             style={
               showNote || expense.note
                 ? { color: '#FBBF24', background: 'rgba(245,158,11,0.12)' }
-                : { color: 'rgba(255,255,255,0.22)' }
+                : { color: 'var(--text-muted)' }
             }
             onMouseEnter={(e) => {
-              if (!showNote && !expense.note) e.currentTarget.style.color = 'rgba(255,255,255,0.5)';
+              if (!showNote && !expense.note) e.currentTarget.style.color = 'var(--text-secondary)';
             }}
             onMouseLeave={(e) => {
-              if (!showNote && !expense.note) e.currentTarget.style.color = 'rgba(255,255,255,0.22)';
+              if (!showNote && !expense.note) e.currentTarget.style.color = 'var(--text-muted)';
             }}
             disabled={readOnly}
             aria-label="Toggle note"
@@ -104,13 +105,13 @@ const ExpenseRow = ({ expense, onUpdate, onDelete, searchCategories, readOnly, i
               type="button"
               onClick={onDelete}
               className="p-2 rounded-lg transition-all"
-              style={{ color: 'rgba(255,255,255,0.22)' }}
+              style={{ color: 'var(--text-muted)' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.color = '#F43F5E';
                 e.currentTarget.style.background = 'rgba(244,63,94,0.1)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.color = 'rgba(255,255,255,0.22)';
+                e.currentTarget.style.color = 'var(--text-muted)';
                 e.currentTarget.style.background = 'transparent';
               }}
               aria-label="Delete expense"
@@ -131,9 +132,9 @@ const ExpenseRow = ({ expense, onUpdate, onDelete, searchCategories, readOnly, i
             placeholder="Add a note (e.g. 10 kg broiler)..."
             className="w-full py-2 px-3 rounded-lg text-xs focus:outline-none transition-all"
             style={{
-              background: 'rgba(255,255,255,0.03)',
-              border: '1px solid rgba(255,255,255,0.07)',
-              color: 'rgba(255,255,255,0.65)',
+              background: 'var(--note-bg)',
+              border: '1px solid var(--note-border)',
+              color: 'var(--text-secondary)',
               caretColor: '#F59E0B',
             }}
             onFocus={(e) => {
@@ -141,7 +142,7 @@ const ExpenseRow = ({ expense, onUpdate, onDelete, searchCategories, readOnly, i
               e.target.style.boxShadow = '0 0 0 2px rgba(245,158,11,0.08)';
             }}
             onBlur={(e) => {
-              e.target.style.borderColor = 'rgba(255,255,255,0.07)';
+              e.target.style.borderColor = 'var(--note-border)';
               e.target.style.boxShadow = 'none';
             }}
             disabled={readOnly}

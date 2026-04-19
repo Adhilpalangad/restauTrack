@@ -220,7 +220,7 @@ const TodayPage = () => {
         {/* Date bar */}
         <div
           className="flex items-center justify-between rounded-2xl px-4 py-3"
-          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
+          style={{ background: 'var(--date-bar-bg)', border: '1px solid var(--date-bar-border)' }}
         >
           {/* Clickable date picker */}
           <div className="relative flex items-center gap-2.5">
@@ -232,11 +232,11 @@ const TodayPage = () => {
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               aria-label="Select date"
             />
-            <CalendarDays className="w-4 h-4 pointer-events-none" style={{ color: 'rgba(129,140,248,0.7)' }} />
-            <span className="text-sm font-bold text-white pointer-events-none">
+            <CalendarDays className="w-4 h-4 pointer-events-none" style={{ color: 'rgba(129,140,248,0.8)' }} />
+            <span className="text-sm font-bold pointer-events-none" style={{ color: 'var(--text)' }}>
               {formatDisplayDate(selectedDate)}
             </span>
-            <ChevronDown className="w-3.5 h-3.5 pointer-events-none" style={{ color: 'rgba(255,255,255,0.28)' }} />
+            <ChevronDown className="w-3.5 h-3.5 pointer-events-none" style={{ color: 'var(--text-faint)' }} />
           </div>
 
           <div className="flex items-center gap-2">
@@ -244,7 +244,7 @@ const TodayPage = () => {
               <button
                 onClick={() => setSelectedDate(today)}
                 className="text-[11px] font-bold px-2.5 py-1 rounded-lg transition-all"
-                style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.25)', color: '#818CF8' }}
+                style={{ background: 'var(--today-btn-bg)', border: '1px solid var(--today-btn-border)', color: 'var(--today-btn-color)' }}
               >
                 Today
               </button>
@@ -255,9 +255,9 @@ const TodayPage = () => {
                 onClick={() => generateDailyPDF(record, selectedHotel, false)}
                 title="Download PDF"
                 className="text-xs font-semibold px-3 py-1 rounded-lg transition-all active:scale-95"
-                style={{ background: 'rgba(99,102,241,0.10)', border: '1px solid rgba(99,102,241,0.22)', color: 'rgba(129,140,248,0.80)' }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(99,102,241,0.20)'; e.currentTarget.style.color = '#818CF8'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(99,102,241,0.10)'; e.currentTarget.style.color = 'rgba(129,140,248,0.80)'; }}
+                style={{ background: 'var(--pdf-btn-bg)', border: '1px solid var(--pdf-btn-border)', color: 'var(--pdf-btn-color)' }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(99,102,241,0.20)'; e.currentTarget.style.color = '#6366F1'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--pdf-btn-bg)'; e.currentTarget.style.color = 'var(--pdf-btn-color)'; }}
               >
                 PDF
               </button>
@@ -343,7 +343,7 @@ const TodayPage = () => {
         }
       >
         <p className="text-sm">
-          Submit the record for <span className="text-white font-semibold">{formatDisplayDate(selectedDate)}</span>?
+          Submit the record for <span className="font-semibold" style={{ color: 'var(--text)' }}>{formatDisplayDate(selectedDate)}</span>?
           You can unlock it later if needed.
         </p>
       </Modal>
@@ -360,7 +360,7 @@ const TodayPage = () => {
         }
       >
         <p className="text-sm">
-          Unlock <span className="text-white font-semibold">{formatDisplayDate(selectedDate)}</span> for editing?
+          Unlock <span className="font-semibold" style={{ color: 'var(--text)' }}>{formatDisplayDate(selectedDate)}</span> for editing?
         </p>
       </Modal>
 
@@ -376,7 +376,7 @@ const TodayPage = () => {
         }
       >
         <p className="text-sm">
-          Delete the record for <span className="text-white font-semibold">{formatDisplayDate(selectedDate)}</span>?
+          Delete the record for <span className="font-semibold" style={{ color: 'var(--text)' }}>{formatDisplayDate(selectedDate)}</span>?
           This is recoverable by the admin if needed.
         </p>
       </Modal>
