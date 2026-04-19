@@ -403,11 +403,8 @@ const SalaryPage = () => {
       {/* ── Total summary strip ─────────────────────────────────────────── */}
       {displayed.length > 0 && (
         <div
-          className="rounded-2xl px-4 py-3 flex items-center justify-between animate-fade-in"
-          style={{
-            background: 'rgba(245,158,11,0.08)',
-            border: '1px solid rgba(245,158,11,0.16)',
-          }}
+          className="glass-card px-4 py-3 flex items-center justify-between animate-fade-in"
+          style={{ borderColor: 'rgba(245,158,11,0.25)' }}
         >
           <div>
             <p className="text-[10px] font-bold uppercase tracking-widest mb-0.5" style={{ color: 'var(--text-muted)' }}>
@@ -446,12 +443,8 @@ const SalaryPage = () => {
           {displayed.map((entry, i) => (
             <div
               key={entry.id}
-              className="rounded-xl flex items-center gap-3 p-3.5 animate-slide-in"
-              style={{
-                animationDelay: `${i * 30}ms`,
-                background: 'var(--row-bg)',
-                border: '1px solid var(--row-border)',
-              }}
+              className="glass-card flex items-center gap-3 p-3.5 animate-slide-in"
+              style={{ animationDelay: `${i * 30}ms` }}
             >
               {/* Initial avatar */}
               <div

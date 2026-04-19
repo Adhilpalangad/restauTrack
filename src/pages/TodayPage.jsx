@@ -169,7 +169,7 @@ const TodayPage = () => {
   const SaveIndicator = () => {
     if (saveStatus === 'saving') {
       return (
-        <div className="flex items-center gap-1 text-xs" style={{ color: 'rgba(255,255,255,0.45)' }}>
+        <div className="flex items-center gap-1 text-xs" style={{ color: 'var(--text-muted)' }}>
           <Loader2 className="w-3 h-3 animate-spin" />
           <span>Saving…</span>
         </div>
