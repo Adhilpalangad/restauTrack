@@ -135,8 +135,12 @@ const TodayPage = () => {
       toast.success('Record submitted!');
       if (navigator.vibrate) navigator.vibrate(10);
     } catch (err) {
-      console.error('Submit failed:', err);
-      toast.error('Failed to submit. Please try again.');
+      if (err.message === 'INCOMPLETE_RECORD') {
+        toast.error('Cannot submit: Please ensure all expense categories and amounts are filled.');
+      } else {
+        console.error('Submit failed:', err);
+        toast.error('Failed to submit. Please try again.');
+      }
     } finally {
       setSubmitting(false);
     }
@@ -167,6 +171,14 @@ const TodayPage = () => {
   };
 
   const SaveIndicator = () => {
+    if (saveStatus === 'incomplete') {
+      return (
+        <div className="flex items-center gap-1.5 text-xs font-medium" style={{ color: '#F59E0B' }}>
+          <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B] animate-pulse" />
+          <span>Unsaved fields</span>
+        </div>
+      );
+    }
     if (saveStatus === 'saving') {
       return (
         <div className="flex items-center gap-1 text-xs" style={{ color: 'var(--text-muted)' }}>

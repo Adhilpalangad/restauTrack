@@ -16,8 +16,12 @@ export const useAutoSave = (userId, hotelId, dateId) => {
         setSaveStatus('saved');
         setTimeout(() => setSaveStatus('idle'), 2000);
       } catch (err) {
-        console.error('Auto-save flush failed:', err);
-        setSaveStatus('error');
+        if (err.message === 'INCOMPLETE_RECORD') {
+          setSaveStatus('incomplete');
+        } else {
+          console.error('Auto-save flush failed:', err);
+          setSaveStatus('error');
+        }
       }
     }
   }, [userId, hotelId, dateId]);
@@ -39,8 +43,12 @@ export const useAutoSave = (userId, hotelId, dateId) => {
           setSaveStatus('saved');
           setTimeout(() => setSaveStatus('idle'), 2000);
         } catch (err) {
-          console.error('Auto-save failed:', err);
-          setSaveStatus('error');
+          if (err.message === 'INCOMPLETE_RECORD') {
+            setSaveStatus('incomplete');
+          } else {
+            console.error('Auto-save failed:', err);
+            setSaveStatus('error');
+          }
         }
       }
     }, AUTO_SAVE_DELAY);

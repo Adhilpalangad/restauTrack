@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BarChart3, Download, Loader2 } from 'lucide-react';
+import { BarChart3, Download, Loader2, ChevronDown } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 import Header from '../components/layout/Header';
@@ -29,6 +29,7 @@ const ReportsPage = () => {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activePeriod, setActivePeriod] = useState('thisMonth');
+  const [selectedCategory, setSelectedCategory] = useState('ALL');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [exporting, setExporting] = useState(false);
@@ -120,6 +121,18 @@ const ReportsPage = () => {
     cash: (r.income?.cash || 0) / 100,
     online: (r.income?.online || 0) / 100,
   }));
+
+  const allCategories = ['ALL', ...new Set(records.flatMap((r) => (r.expenses || []).map((e) => e.category)).filter(Boolean))].sort();
+
+  const categoryEntries = selectedCategory === 'ALL' ? [] : records.flatMap((r) => 
+    (r.expenses || []).filter((e) => e.category === selectedCategory).map((e) => ({ ...e, date: r.date }))
+  );
+  const totalCategorySpend = categoryEntries.reduce((s, e) => s + (e.amount || 0), 0);
+  
+  const categoryTrendData = selectedCategory === 'ALL' ? [] : [...records].reverse().map((r) => {
+    const spent = (r.expenses || []).filter((e) => e.category === selectedCategory).reduce((ss, e) => ss + (e.amount || 0), 0) / 100;
+    return { date: formatShortDate(r.date), spent };
+  });
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (!active || !payload) return null;
@@ -233,8 +246,30 @@ const ReportsPage = () => {
           />
         ) : (
           <>
-            {/* Summary Stats */}
-            <div className="grid grid-cols-2 gap-3">
+            {/* Category selector */}
+            <div className="animate-fade-in mb-4">
+              <label className="text-xs block mb-1.5 font-medium" style={{ color: 'var(--text-muted)' }}>Filter by Category</label>
+              <div className="relative">
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="input-field w-full appearance-none pr-10 text-sm font-medium py-2.5"
+                  style={{ background: 'var(--glass-bg)', border: '1px solid var(--glass-border)' }}
+                >
+                  {allCategories.map((cat) => (
+                    <option key={cat} value={cat}>{cat === 'ALL' ? 'All Categories (Overview)' : cat}</option>
+                  ))}
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <ChevronDown className="w-4 h-4" style={{ color: 'var(--text-muted)' }} />
+                </div>
+              </div>
+            </div>
+
+            {selectedCategory === 'ALL' ? (
+              <>
+                {/* Summary Stats */}
+                <div className="grid grid-cols-2 gap-3">
               <StatCard label="Total Income" value={formatCurrency(totalIncome)} positive={true} />
               <StatCard label="Total Expense" value={formatCurrency(totalExpense)} positive={false} />
               <StatCard label="Net Profit" value={(netProfit >= 0 ? '' : '−') + formatCurrency(Math.abs(netProfit))} positive={netProfit >= 0} />
@@ -352,6 +387,51 @@ const ReportsPage = () => {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            )}
+              </>
+            ) : (
+              <div className="animate-fade-in space-y-4">
+                <div className="grid grid-cols-1 gap-3">
+                  <StatCard label={`Total Spend on ${selectedCategory}`} value={formatCurrency(totalCategorySpend)} positive={false} />
+                </div>
+
+                <div className="glass-card p-4">
+                  <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text)' }}>Daily Spend Trend</h3>
+                  <ResponsiveContainer width="100%" height={220}>
+                    <BarChart data={categoryTrendData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--divider)" />
+                      <XAxis dataKey="date" tick={{ fontSize: 10, fill: 'var(--text-muted)' }} stroke="var(--divider)" />
+                      <YAxis tick={{ fontSize: 10, fill: 'var(--text-muted)' }} stroke="var(--divider)" />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Bar dataKey="spent" name="Spent" fill="#F59E0B" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+
+                {categoryEntries.length > 0 && (
+                  <div className="glass-card p-4 overflow-x-auto">
+                    <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text)' }}>Expense Entries</h3>
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="text-left" style={{ borderBottom: '1px solid var(--divider)' }}>
+                          <th className="pb-2 pr-2 font-semibold" style={{ color: 'var(--text-muted)' }}>Date</th>
+                          <th className="pb-2 pr-2 font-semibold" style={{ color: 'var(--text-muted)' }}>Note</th>
+                          <th className="pb-2 text-right font-semibold" style={{ color: 'var(--text-muted)' }}>Amount</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {categoryEntries.map((e, i) => (
+                          <tr key={i} style={{ borderBottom: '1px solid var(--divider)' }}>
+                            <td className="py-2 pr-2 font-medium" style={{ color: 'var(--text-secondary)' }}>{formatShortDate(e.date)}</td>
+                            <td className="py-2 pr-2" style={{ color: 'var(--text-muted)' }}>{e.note || '-'}</td>
+                            <td className="py-2 text-right currency-display font-medium" style={{ color: 'var(--text)' }}>{formatCurrency(e.amount)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             )}
           </>
